@@ -17,7 +17,7 @@ rm */*.pyc
 
 # Make
 lcm-gen -jxp *.lcm
-cp /usr/local/share/java/lcm.jar .
+cp /usr/share/java/lcm.jar .
 javac -cp lcm.jar */*.java
 jar cf my_types.jar */*.class
 mkdir -p java

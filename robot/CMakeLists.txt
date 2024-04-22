@@ -16,11 +16,16 @@ include_directories("../third-party/SOEM/osal/linux")
 include_directories("../third-party/SOEM/oshw")
 include_directories("../third-party/SOEM/oshw/linux")
 
+# UniTree
+include_directories("../third-party/UniTree/include/")
+# cserialport
+include_directories("../third-party/CSerial/include/")
+
 file(GLOB sources "src/*.cpp" "src/rt/*.c"  "src/rt/*.cpp")
 
 add_library(robot SHARED ${sources})
 
-target_link_libraries(robot biomimetics pthread lcm inih dynacore_param_handler lord_imu soem)
+target_link_libraries(robot biomimetics pthread lcm inih dynacore_param_handler lord_imu soem UniTree cserialport)
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
 target_link_libraries(robot libvnc rt)
 endif()

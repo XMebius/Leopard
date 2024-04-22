@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 project(sim)
 
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -9,7 +9,7 @@ SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH_1})
 # message("CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 
 if(POLICY CMP0071)
-  cmake_policy(SET CMP0071 OLD)
+  cmake_policy(SET CMP0071 NEW)
 endif()
 
 # Instruct CMake to run moc automatically when needed

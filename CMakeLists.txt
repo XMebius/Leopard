@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
+project(Leopard)
+
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
 
@@ -10,6 +12,18 @@ set(CMAKE_COLOR_MAKEFILE   ON)
 #execute_process(COMMAND ../scripts/make_types.sh)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+## 加入linux宏定义打开HardwareBridge
+option(linux "whether to use HardwareBridge" OFF)
+if(linux)
+  add_definitions(-Dlinux)
+endif()
+
+## 加入USE_MOTOR定义是否使用ACM0串口，防止不接入电机时输出受影响
+option(USE_MOTOR "whether to use ACM0" OFF)
+if(USE_MOTOR)
+  add_definitions(-DUSE_MOTOR)
+endif()
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 

@@ -1,5 +1,5 @@
 # Minimum version required
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.10)
 
 # Project name
 project (osqp)
@@ -299,7 +299,7 @@ add_subdirectory(lin_sys)
 
 # Static library
 #add_library (osqpstatic STATIC ${osqp_src} ${osqp_headers} ${linsys_solvers})
-add_library (osqpstatic SHARED ${osqp_src} ${osqp_headers} ${linsys_solvers})
+add_library (osqpstatic STATIC ${osqp_src} ${osqp_headers} ${linsys_solvers})
 # Give same name to static library output
 set_target_properties(osqpstatic PROPERTIES OUTPUT_NAME osqp)
 
