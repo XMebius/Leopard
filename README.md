@@ -76,7 +76,7 @@ sudo cp ./glibc-2.11/bits/stropts.h /usr/include/bits
 sudo cp ./glibc-2.11/sysdeps/x86_64/bits/xtitypes.h /usr/include/bits
 ```
 
-### Cheetah编译
+### MIT Cheetah编译
 
 编译之前先更新动态链接库，使得lcm的库能被sim目标链接到
 
@@ -123,3 +123,17 @@ make -j20
 sudo ./user/MIT_Controller/mit_ctrl m s 
 ```
 
+## 运行TJ Leopard
+
+将config中的default-user-parameters-file.yaml改为对应的用户参数文件"leopard-userParam-default.yaml"
+
+```bash
+./sim/sim
+sudo ./user/TJ_Leopard/tj_ctrl l s
+```
+
+如果是硬件运行
+
+```bash
+sudo ./user/TJ_Leopard/tj_ctrl l r f
+```
