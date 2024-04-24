@@ -142,7 +142,7 @@ int receive_sbus(int port) {
     if (x) {
         unpack_sbus_data((uint8_t *) read_buff, channels);
     } else {
-        printf("SBUS tried read 50 bytes without seeing a packet\n");
+//        printf("SBUS tried read 50 bytes without seeing a packet\n");
     }
     return x;
 }

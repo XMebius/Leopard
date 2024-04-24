@@ -10,7 +10,7 @@
 class TJU_UserParameters: public ControlParameters {
 public:
     TJU_UserParameters():
-    ControlParameters("tj-user-parameters"),
+    ControlParameters("user-parameters"),
     INIT_PARAMETER(cmpc_gait),
     INIT_PARAMETER(cmpc_x_drag),
     INIT_PARAMETER(cmpc_use_sparse),

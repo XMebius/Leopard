@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1312</width>
-    <height>1209</height>
+    <width>917</width>
+    <height>882</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -98,6 +98,13 @@
            <widget class="QRadioButton" name="miniCheetahButton">
             <property name="text">
              <string>Mini Cheetah</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="tjLeopardButton">
+            <property name="text">
+             <string>TJ Leopard</string>
             </property>
            </widget>
           </item>
@@ -487,8 +494,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1312</width>
-     <height>22</height>
+     <width>917</width>
+     <height>28</height>
     </rect>
    </property>
   </widget>

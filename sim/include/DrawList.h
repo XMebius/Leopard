@@ -61,6 +61,7 @@ class DrawList {
   }
   size_t addCheetah3(Vec4<float> color, bool useOld, bool canHide);
   size_t addMiniCheetah(Vec4<float> color, bool useOld, bool canHide);
+  size_t addTJLeopard(Vec4<float> color, bool useOld, bool canHide);
   void buildDrawList();
   void loadFiles();
   void doScrolling(Vec3<float> cameraPos);
@@ -326,7 +327,7 @@ class DrawList {
 
   Vec3<double> _cameraOrigin;
 
-  size_t _cheetah3LoadIndex = 0, _miniCheetahLoadIndex = 0,
+  size_t _cheetah3LoadIndex = 0, _miniCheetahLoadIndex = 0, _tjLeopardLoadIndex = 0,
          _sphereLoadIndex = 0, _cubeLoadIndex = 0;
 };
 

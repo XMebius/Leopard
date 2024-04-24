@@ -350,6 +350,8 @@ void SimControlPanel::on_startButton_clicked() {
     robotType = RobotType::CHEETAH_3;
   } else if (ui->miniCheetahButton->isChecked()) {
     robotType = RobotType::MINI_CHEETAH;
+  } else if (ui->tjLeopardButton->isChecked()){
+      robotType = RobotType::LEOPARD;
   } else {
     createErrorMessage("Error: you must select a robot");
     return;
@@ -368,7 +370,7 @@ void SimControlPanel::on_startButton_clicked() {
   printf("[SimControlPanel] Initialize Graphics...\n");
   _graphicsWindow = new Graphics3D();
   _graphicsWindow->show();
-  _graphicsWindow->resize(1280, 720);
+  _graphicsWindow->resize(1080, 640);
 
   if (_simulationMode) {
     // run a simulation
@@ -390,9 +392,6 @@ void SimControlPanel::on_startButton_clicked() {
       createErrorMessage("FATAL: Exception thrown during simulator setup\n" + std::string(e.what()));
       throw e;
     }
-
-
-
 
     // start sim
     _simThread = std::thread(

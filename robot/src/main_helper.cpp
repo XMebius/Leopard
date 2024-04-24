@@ -87,7 +87,8 @@ int main_helper(int argc, char **argv, RobotController *ctrl) {
             SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
             simulationBridge.run();
         } else if (gMasterConfig._robot == RobotType::LEOPARD) {
-            // TODO: change simulation pannel
+            SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
+            simulationBridge.run();
         } else {
             printf("[ERROR] unknown robot\n");
             assert(false);
