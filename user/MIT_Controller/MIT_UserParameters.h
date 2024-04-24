@@ -43,25 +43,25 @@ public:
         INIT_PARAMETER(Swing_step_offset),
         INIT_PARAMETER(Swing_traj_height),
         INIT_PARAMETER(Swing_use_tau_ff),
-        INIT_PARAMETER(RPC_Q_p),
-        INIT_PARAMETER(RPC_Q_theta),
-        INIT_PARAMETER(RPC_Q_dp),
-        INIT_PARAMETER(RPC_Q_dtheta),
-        INIT_PARAMETER(RPC_R_r),
-        INIT_PARAMETER(RPC_R_f),
-        INIT_PARAMETER(RPC_H_r_trans),
-        INIT_PARAMETER(RPC_H_r_rot),
-        INIT_PARAMETER(RPC_H_theta0),
-        INIT_PARAMETER(RPC_H_phi0),
-        INIT_PARAMETER(RPC_mass),
-        INIT_PARAMETER(RPC_inertia),
-        INIT_PARAMETER(RPC_gravity),
-        INIT_PARAMETER(RPC_mu),
-        INIT_PARAMETER(RPC_filter),
-        INIT_PARAMETER(RPC_use_pred_comp),
-        INIT_PARAMETER(RPC_use_async_filt),
-        INIT_PARAMETER(RPC_visualize_pred),
-        INIT_PARAMETER(RPC_use_separate),
+//        INIT_PARAMETER(RPC_Q_p),
+//        INIT_PARAMETER(RPC_Q_theta),
+//        INIT_PARAMETER(RPC_Q_dp),
+//        INIT_PARAMETER(RPC_Q_dtheta),
+//        INIT_PARAMETER(RPC_R_r),
+//        INIT_PARAMETER(RPC_R_f),
+//        INIT_PARAMETER(RPC_H_r_trans),
+//        INIT_PARAMETER(RPC_H_r_rot),
+//        INIT_PARAMETER(RPC_H_theta0),
+//        INIT_PARAMETER(RPC_H_phi0),
+//        INIT_PARAMETER(RPC_mass),
+//        INIT_PARAMETER(RPC_inertia),
+//        INIT_PARAMETER(RPC_gravity),
+//        INIT_PARAMETER(RPC_mu),
+//        INIT_PARAMETER(RPC_filter),
+//        INIT_PARAMETER(RPC_use_pred_comp),
+//        INIT_PARAMETER(RPC_use_async_filt),
+//        INIT_PARAMETER(RPC_visualize_pred),
+//        INIT_PARAMETER(RPC_use_separate),
         INIT_PARAMETER(des_p),
         INIT_PARAMETER(des_theta),
         INIT_PARAMETER(des_dp),
@@ -127,25 +127,25 @@ public:
 
 
   // Parameters used for RPC
-  DECLARE_PARAMETER(Vec3<double>, RPC_Q_p);
-  DECLARE_PARAMETER(Vec3<double>, RPC_Q_theta);
-  DECLARE_PARAMETER(Vec3<double>, RPC_Q_dp);
-  DECLARE_PARAMETER(Vec3<double>, RPC_Q_dtheta);
-  DECLARE_PARAMETER(Vec3<double>, RPC_R_r);
-  DECLARE_PARAMETER(Vec3<double>, RPC_R_f);
-  DECLARE_PARAMETER(Vec3<double>, RPC_H_r_trans);
-  DECLARE_PARAMETER(Vec3<double>, RPC_H_r_rot);
-  DECLARE_PARAMETER(Vec3<double>, RPC_H_theta0);
-  DECLARE_PARAMETER(Vec3<double>, RPC_H_phi0);
-  DECLARE_PARAMETER(double, RPC_mass);
-  DECLARE_PARAMETER(Vec3<double>, RPC_inertia);
-  DECLARE_PARAMETER(Vec3<double>, RPC_gravity);
-  DECLARE_PARAMETER(double, RPC_mu);
-  DECLARE_PARAMETER(Vec3<double>, RPC_filter);
-  DECLARE_PARAMETER(double, RPC_use_pred_comp);
-  DECLARE_PARAMETER(double, RPC_use_async_filt);
-  DECLARE_PARAMETER(double, RPC_visualize_pred);
-  DECLARE_PARAMETER(double, RPC_use_separate);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_Q_p);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_Q_theta);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_Q_dp);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_Q_dtheta);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_R_r);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_R_f);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_H_r_trans);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_H_r_rot);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_H_theta0);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_H_phi0);
+//  DECLARE_PARAMETER(double, RPC_mass);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_inertia);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_gravity);
+//  DECLARE_PARAMETER(double, RPC_mu);
+//  DECLARE_PARAMETER(Vec3<double>, RPC_filter);
+//  DECLARE_PARAMETER(double, RPC_use_pred_comp);
+//  DECLARE_PARAMETER(double, RPC_use_async_filt);
+//  DECLARE_PARAMETER(double, RPC_visualize_pred);
+//  DECLARE_PARAMETER(double, RPC_use_separate);
 
   // Desired states
   DECLARE_PARAMETER(Vec3<double>, des_p);

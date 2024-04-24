@@ -35,7 +35,7 @@ void RobotRunner::init() {
   printf("[RobotRunner] initialize\n");
 
   // Build the appropriate Quadruped object
-  if (robotType == RobotType::MINI_CHEETAH) {
+  if (robotType == RobotType::MINI_CHEETAH || robotType == RobotType::LEOPARD) {
     _quadruped = buildMiniCheetah<float>();
   } else {
     _quadruped = buildCheetah3<float>();
@@ -95,11 +95,14 @@ void RobotRunner::run() {
   ++count_ini;
   if (count_ini < 10) {
     _legController->setEnabled(false);
-  } else if (20 < count_ini && count_ini < 30) {
+  }
+  else if (20 < count_ini && count_ini < 30) {
     _legController->setEnabled(false);
-  } else if (40 < count_ini && count_ini < 50) {
+  }
+  else if (40 < count_ini && count_ini < 50) {
     _legController->setEnabled(false);
-  } else {
+  }
+  else {
     _legController->setEnabled(true);
 
     if( (rc_control.mode == 0) && controlParameters->use_rc ) {
@@ -114,7 +117,7 @@ void RobotRunner::run() {
         Mat3<float> kpMat;
         Mat3<float> kdMat;
         // Update the jpos feedback gains
-        if (robotType == RobotType::MINI_CHEETAH) {
+        if (robotType == RobotType::MINI_CHEETAH || robotType == RobotType::LEOPARD) {
           kpMat << 5, 0, 0, 0, 5, 0, 0, 0, 5;
           kdMat << 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1;
         } else if (robotType == RobotType::CHEETAH_3) {
@@ -141,8 +144,6 @@ void RobotRunner::run() {
 
   }
 
-
-
   // Visualization (will make this into a separate function later)
   for (int leg = 0; leg < 4; leg++) {
     for (int joint = 0; joint < 3; joint++) {
@@ -163,7 +164,7 @@ void RobotRunner::run() {
  */
 void RobotRunner::setupStep() {
   // Update the leg data
-  if (robotType == RobotType::MINI_CHEETAH) {
+  if (robotType == RobotType::MINI_CHEETAH || robotType == RobotType::LEOPARD) {
     _legController->updateData(spiData);
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateData(tiBoardData);
@@ -202,7 +203,7 @@ void RobotRunner::setupStep() {
  * After the user code, send leg commands, update state estimate, and publish debug data
  */
 void RobotRunner::finalizeStep() {
-  if (robotType == RobotType::MINI_CHEETAH) {
+  if (robotType == RobotType::MINI_CHEETAH || robotType == RobotType::LEOPARD) {
     _legController->updateCommand(spiCommand);
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateCommand(tiBoardCommand);

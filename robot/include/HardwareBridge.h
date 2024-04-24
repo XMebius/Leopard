@@ -146,5 +146,28 @@ private:
     // nothing?
 };
 
+class LeopardHardwareBridge : public HardwareBridge {
+public:
+    LeopardHardwareBridge(RobotController *rc, bool load_parameters_from_file);
+
+    void initHardware();
+
+    void runUnitree();
+
+    void runWheeltech();
+
+    void run();
+
+private:
+    lcm::LCM _unitreeLcm;
+    void *pSerialPort;
+
+    VectorNavData _wheeltecData;
+    std::thread _wheeltecThread;
+    bool _wheeltecInit = false;
+
+    bool _load_parameters_from_file;
+};
+
 #endif // END of #ifdef linux
 #endif  // PROJECT_HARDWAREBRIDGE_H

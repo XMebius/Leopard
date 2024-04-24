@@ -24,6 +24,6 @@
 #define INSGPS_LEN 0x54
 
 bool init_port(void *);
-void read_imu(void *, VectorNavData&);
+void read_vectorNav(void *, VectorNavData&);
 
 #endif //LEOPARD_RT_WHEELTEC_H

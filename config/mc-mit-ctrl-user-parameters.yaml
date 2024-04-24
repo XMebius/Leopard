@@ -63,25 +63,25 @@ two_leg_orient    : [0.225, 9.1, 0.0]
 stance_legs       : 4
 
 # RPC parameters
-RPC_Q_p             : [10000, 10000, 100000]
-RPC_Q_theta         : [5000, 10000, 2500]
-RPC_Q_dp            : [2500, 2500, 500]
-RPC_Q_dtheta        : [2.5, 2.5, 50]
-RPC_R_r             : [350000, 350000, 350000]
-RPC_R_f             : [0.001, 0.001, 0.001]
-RPC_H_r_trans       : [1, 2, 1]
-RPC_H_r_rot         : [1, 1, 0]
-RPC_H_theta0        : [1.25, 0, 0]
-RPC_H_phi0          : [-0.3, 0.02, 0]
-RPC_mass            : 9
-RPC_inertia         : [0.07, 0.26, 0.242]
-RPC_gravity         : [0, 0, -9.81]
-RPC_mu              : 0.5
-RPC_filter          : [0.5, 0.1, 0]
-RPC_use_pred_comp   : 1
-RPC_use_async_filt  : 1
-RPC_visualize_pred  : 1
-RPC_use_separate    : 1
+#RPC_Q_p             : [10000, 10000, 100000]
+#RPC_Q_theta         : [5000, 10000, 2500]
+#RPC_Q_dp            : [2500, 2500, 500]
+#RPC_Q_dtheta        : [2.5, 2.5, 50]
+#RPC_R_r             : [350000, 350000, 350000]
+#RPC_R_f             : [0.001, 0.001, 0.001]
+#RPC_H_r_trans       : [1, 2, 1]
+#RPC_H_r_rot         : [1, 1, 0]
+#RPC_H_theta0        : [1.25, 0, 0]
+#RPC_H_phi0          : [-0.3, 0.02, 0]
+#RPC_mass            : 9
+#RPC_inertia         : [0.07, 0.26, 0.242]
+#RPC_gravity         : [0, 0, -9.81]
+#RPC_mu              : 0.5
+#RPC_filter          : [0.5, 0.1, 0]
+#RPC_use_pred_comp   : 1
+#RPC_use_async_filt  : 1
+#RPC_visualize_pred  : 1
+#RPC_use_separate    : 1
 
 # Desired state commands
 des_p             : [0,0,0.26]

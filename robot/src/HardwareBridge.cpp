@@ -224,6 +224,125 @@ void HardwareBridge::handleControlParameter(
     _interfaceLCM.publish("interface_response", &_parameter_response_lcmt);
 }
 
+LeopardHardwareBridge::LeopardHardwareBridge(RobotController *rc, bool load_parameters_from_file)
+        : HardwareBridge(rc) {
+    _load_parameters_from_file = load_parameters_from_file;
+}
+
+void LeopardHardwareBridge::initHardware() {
+    _wheeltecData.quat << 1, 0, 0, 0;
+    printf("[MiniCheetahHardware] Init Wheeltec...\n");
+    pSerialPort = CSerialPortMalloc();
+    if (init_port(pSerialPort)) {// open port for IMU
+        _wheeltecInit = true;
+        printf("wheeltec initialize success\n");
+    }
+#ifdef USE_MOTOR
+    printf("[MiniCheetahHardware] Init Unitree USB\n");
+    init_usb();
+#endif
+}
+
+void LeopardHardwareBridge::runUnitree() {
+#ifdef USE_MOTOR
+    usb_command_t *cmd = get_usb_command();
+    usb_data_t *data = get_usb_data();
+
+    memcpy(cmd, &_spiCommand, sizeof(usb_command_t));
+    usb_driver_run();
+    memcpy(&_spiData, data, sizeof(usb_data_t));
+
+    _unitreeLcm.publish("uniTree_data", data);
+    _unitreeLcm.publish("uniTree_command", cmd);
+#endif
+}
+
+void LeopardHardwareBridge::runWheeltech() {
+    read_vectorNav(pSerialPort, _wheeltecData);
+}
+
+void LeopardHardwareBridge::run() {
+    initCommon();
+    initHardware();
+
+    if (_load_parameters_from_file) {
+        // robotParams
+        std::cout << "[Hardware Bridge] Loading parameters from file..." << std::endl;
+        try {
+            _robotParams.initializeFromYamlFile(THIS_COM "config/leopard-robotParam-default.yaml");
+        } catch (std::exception &e) {
+            printf("Failed to initialize robot parameters from yaml file: %s\n", e.what());
+            exit(1);
+        }
+        if (!_robotParams.isFullyInitialized()) {
+            printf("Failed to initialize all robot parameters\n");
+            exit(1);
+        }
+        std::cout << "Loaded robot parameters" << std::endl;
+
+        // userParams
+        if (_userControlParameters) {
+            try {
+                _userControlParameters->initializeFromYamlFile(THIS_COM "config/leopard-userParam-default.yaml");
+            } catch (std::exception &e) {
+                printf("Failed to initialize user parameters from yaml file: %s\n", e.what());
+                exit(1);
+            }
+            if (!_userControlParameters->isFullyInitialized()) {
+                printf("Failed to initialize all user parameters\n");
+                exit(1);
+            }
+            std::cout << "Loaded user parameters" << std::endl;
+        } else {
+            printf("Did not load user parameters because there aren't any\n");
+        }
+    }
+
+    std::cout << "[Hardware Bridge] Got all parameters, starting up!" << std::endl;
+
+    _robotRunner = new RobotRunner(_controller, &taskManager, _robotParams.controller_dt, "robot-control");
+    _robotRunner->driverCommand = &_gamepadCommand;
+    _robotRunner->spiData = &_spiData;
+    _robotRunner->spiCommand = &_spiCommand;
+    _robotRunner->robotType = RobotType::LEOPARD;
+    _robotRunner->vectorNavData = &_wheeltecData;
+    _robotRunner->controlParameters = &_robotParams;
+    _robotRunner->visualizationData = &_visualizationData;
+    _robotRunner->cheetahMainVisualization = &_mainCheetahVisualization;
+
+    _firstRun = false;
+    statusTask.start();
+
+
+    PeriodicMemberFunction<LeopardHardwareBridge> uniTreeTask(
+            &taskManager, .002, "uniTree", &LeopardHardwareBridge::runUnitree, this);
+    uniTreeTask.start();
+
+    // rc controller
+    _port = init_sbus(false);  // Not Simulation
+    PeriodicMemberFunction<HardwareBridge> sbusTask(
+            &taskManager, .005, "rc_controller", &HardwareBridge::run_sbus, this);
+    sbusTask.start();
+
+    PeriodicMemberFunction<LeopardHardwareBridge> wheeltecTask(
+            &taskManager, .005, "wheeltec", &LeopardHardwareBridge::runWheeltech, this);
+    // wheeltec
+    if (_wheeltecInit){
+        wheeltecTask.start();   // constructor不能放在if里，生命周期问题
+    }
+
+    // visualization start
+    PeriodicMemberFunction<LeopardHardwareBridge> visualizationLCMTask(
+            &taskManager, .0167, "lcm-vis", &LeopardHardwareBridge::publishVisualizationLCM, this);
+    visualizationLCMTask.start();
+
+    // robotRunner override run and init function which are called in loopfunction
+    _robotRunner->start();
+
+    for (;;) {
+        usleep(1000000);
+    }
+}
 
 MiniCheetahHardwareBridge::MiniCheetahHardwareBridge(RobotController *robot_ctrl, bool load_parameters_from_file)
         : HardwareBridge(robot_ctrl), _spiLcm(getLcmUrl(255)), _microstrainLcm(getLcmUrl(255)) {
@@ -308,11 +427,11 @@ void MiniCheetahHardwareBridge::run() {
     statusTask.start();
 
     // USB Task start
-#ifdef USE_MOTOR
+
     PeriodicMemberFunction<MiniCheetahHardwareBridge> usbTask(
             &taskManager, .002, "usb", &MiniCheetahHardwareBridge::runUSB, this);
     usbTask.start();
-#endif
+
 
     // wheeltec
     if (_wheeltecInit)
@@ -351,10 +470,11 @@ void HardwareBridge::run_sbus() {
     }
 }
 
+
 void MiniCheetahHardwareBridge::runWheeltech() {
     while (true) {
         // change vecotrNavData here
-        read_imu(pSerialPort, _vectorNavData);
+        read_vectorNav(pSerialPort, _vectorNavData);
     }
 }
 
@@ -394,6 +514,7 @@ void Cheetah3HardwareBridge::initHardware() {
  * Run Mini Cheetah USB
  */
 void MiniCheetahHardwareBridge::runUSB() {
+#ifdef USE_MOTOR
     usb_command_t *cmd = get_usb_command();
     usb_data_t *data = get_usb_data();
 
@@ -403,6 +524,7 @@ void MiniCheetahHardwareBridge::runUSB() {
 
     _usbLcm.publish("usb_data", data);
     _usbLcm.publish("usb_command", cmd);
+#endif
 }
 
 void Cheetah3HardwareBridge::runEcat() {

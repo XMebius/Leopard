@@ -2,6 +2,7 @@
 // Created by mebius on 24-4-22.
 //
 
+#ifdef USE_MOTOR
 
 #include "rt/rt_usb.h"
 #define MOTOR_CHEATER
@@ -248,3 +249,5 @@ usb_command_t *get_usb_command() {
 usb_data_t *get_usb_data() {
     return &usb_data_drv;
 }
+
+#endif // USE_MOTOR

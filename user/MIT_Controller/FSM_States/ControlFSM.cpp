@@ -97,7 +97,7 @@ void ControlFSM<T>::runFSM() {
 
     // Check the robot state for safe operation
     operatingMode = safetyPreCheck();
-#ifndef USE_RC
+#ifdef USE_RC
     if (data.controlParameters->use_rc) {
         int rc_mode = data._desiredStateCommand->rcCommand->mode;
         if (rc_mode == RC_mode::RECOVERY_STAND) {
@@ -124,7 +124,7 @@ void ControlFSM<T>::runFSM() {
         data.controlParameters->control_mode = K_STAND_UP;
         it++;
     } else {
-        data.controlParameters->control_mode = K_VISION;
+        data.controlParameters->control_mode = K_LOCOMOTION;
     }
 #endif
 
@@ -160,6 +160,92 @@ void ControlFSM<T>::runFSM() {
 
     // Increase the iteration counter
     iter++;
+}
+
+// 打印状态估计器输出
+void printStateEstimator(ControlFSMData<float> data) {
+    auto seResult = data._stateEstimator->getResult();
+    printf("contactEstimate: [%f, %f, %f, %f]\n", seResult.contactEstimate[0], seResult.contactEstimate[1],
+           seResult.contactEstimate[2], seResult.contactEstimate[3]);
+    printf("position: [%f, %f, %f]\n", seResult.position[0], seResult.position[1], seResult.position[2]);
+    printf("rpy: [%f, %f, %f]\n", seResult.rpy[0], seResult.rpy[1], seResult.rpy[2]);
+    printf("vWorld: [%f, %f, %f]\n", seResult.vWorld[0], seResult.vWorld[1], seResult.vWorld[2]);
+    printf("vBody: [%f, %f, %f]\n", seResult.vBody[0], seResult.vBody[1], seResult.vBody[2]);
+    printf("omegaWorld: %f, %f, %f\n", seResult.omegaWorld[0], seResult.omegaWorld[1], seResult.omegaWorld[2]);
+    printf("omegaBody: %f, %f, %f\n", seResult.omegaBody[0], seResult.omegaBody[1], seResult.omegaBody[2]);
+    printf("orientation: %f, %f, %f, %f\n", seResult.orientation[0], seResult.orientation[1], seResult.orientation[2],
+           seResult.orientation[3]);
+    printf("rBody: \n");
+    for (int i = 0; i < 3; i++) {
+        printf("%f, %f, %f\n", seResult.rBody(i, 0), seResult.rBody(i, 1), seResult.rBody(i, 2));
+    }
+    printf("aBody: %f, %f, %f\n", seResult.aBody[0], seResult.aBody[1], seResult.aBody[2]);
+    printf("aWorld: %f, %f, %f\n", seResult.aWorld[0], seResult.aWorld[1], seResult.aWorld[2]);
+}
+
+/**
+ * Prints Control FSM info at regular intervals and on important events
+ * such as transition initializations and finalizations. Separate function
+ * to not clutter the actual code.
+ *
+ * @param printing mode option for regular or an event
+ */
+template<typename T>
+void ControlFSM<T>::printInfo(int opt) {
+    switch (opt) {
+        case 0:  // Normal printing case at regular intervals
+            // Increment printing iteration
+            printIter++;
+            if (printIter == 100) { printStateEstimator(data); }
+
+            // Print at commanded frequency
+            if (printIter == printNum) {
+                std::cout << "[CONTROL FSM] Printing FSM Info...\n";
+                std::cout
+                        << "---------------------------------------------------------\n";
+                std::cout << "Iteration: " << iter << "\n";
+                if (operatingMode == FSM_OperatingMode::NORMAL) {
+                    std::cout << "Operating Mode: NORMAL in " << currentState->stateString
+                              << "\n";
+
+                } else if (operatingMode == FSM_OperatingMode::TRANSITIONING) {
+                    std::cout << "Operating Mode: TRANSITIONING from "
+                              << currentState->stateString << " to "
+                              << nextState->stateString << "\n";
+
+                } else if (operatingMode == FSM_OperatingMode::ESTOP) {
+                    std::cout << "Operating Mode: ESTOP\n";
+                }
+                std::cout << "Gait Type: " << data._gaitScheduler->gaitData.gaitName
+                          << "\n";
+                std::cout << std::endl;
+
+                // Reset iteration counter
+                printIter = 0;
+            }
+
+            // Print robot info about the robot's status
+            // data._gaitScheduler->printGaitInfo();
+//            data._desiredStateCommand->printStateCommandInfo();
+
+            break;
+
+        case 1:  // Initializing FSM State transition
+            std::cout << "[CONTROL FSM] Transition initialized from "
+                      << currentState->stateString << " to " << nextState->stateString
+                      << "\n"
+                      << std::endl;
+
+            break;
+
+        case 2:  // Finalizing FSM State transition
+            std::cout << "[CONTROL FSM] Transition finalizing from "
+                      << currentState->stateString << " to " << nextState->stateString
+                      << "\n"
+                      << std::endl;
+
+            break;
+    }
 }
 
 /**
@@ -254,92 +340,6 @@ FSM_State<T> *ControlFSM<T>::getNextState(FSM_StateName stateName) {
 
         default:
             return statesList.invalid;
-    }
-}
-
-// 打印状态估计器输出
-void printStateEstimator(ControlFSMData<float> data) {
-    auto seResult = data._stateEstimator->getResult();
-    printf("contactEstimate: [%f, %f, %f, %f]\n", seResult.contactEstimate[0], seResult.contactEstimate[1],
-           seResult.contactEstimate[2], seResult.contactEstimate[3]);
-    printf("position: [%f, %f, %f]\n", seResult.position[0], seResult.position[1], seResult.position[2]);
-    printf("rpy: [%f, %f, %f]\n", seResult.rpy[0], seResult.rpy[1], seResult.rpy[2]);
-    printf("vWorld: [%f, %f, %f]\n", seResult.vWorld[0], seResult.vWorld[1], seResult.vWorld[2]);
-    printf("vBody: [%f, %f, %f]\n", seResult.vBody[0], seResult.vBody[1], seResult.vBody[2]);
-    printf("omegaWorld: %f, %f, %f\n", seResult.omegaWorld[0], seResult.omegaWorld[1], seResult.omegaWorld[2]);
-    printf("omegaBody: %f, %f, %f\n", seResult.omegaBody[0], seResult.omegaBody[1], seResult.omegaBody[2]);
-    printf("orientation: %f, %f, %f, %f\n", seResult.orientation[0], seResult.orientation[1], seResult.orientation[2],
-           seResult.orientation[3]);
-    printf("rBody: \n");
-    for (int i = 0; i < 3; i++) {
-        printf("%f, %f, %f\n", seResult.rBody(i, 0), seResult.rBody(i, 1), seResult.rBody(i, 2));
-    }
-    printf("aBody: %f, %f, %f\n", seResult.aBody[0], seResult.aBody[1], seResult.aBody[2]);
-    printf("aWorld: %f, %f, %f\n", seResult.aWorld[0], seResult.aWorld[1], seResult.aWorld[2]);
-}
-
-/**
- * Prints Control FSM info at regular intervals and on important events
- * such as transition initializations and finalizations. Separate function
- * to not clutter the actual code.
- *
- * @param printing mode option for regular or an event
- */
-template<typename T>
-void ControlFSM<T>::printInfo(int opt) {
-    switch (opt) {
-        case 0:  // Normal printing case at regular intervals
-            // Increment printing iteration
-            printIter++;
-            if (printIter == 100) { printStateEstimator(data); }
-
-            // Print at commanded frequency
-            if (printIter == printNum) {
-                std::cout << "[CONTROL FSM] Printing FSM Info...\n";
-                std::cout
-                        << "---------------------------------------------------------\n";
-                std::cout << "Iteration: " << iter << "\n";
-                if (operatingMode == FSM_OperatingMode::NORMAL) {
-                    std::cout << "Operating Mode: NORMAL in " << currentState->stateString
-                              << "\n";
-
-                } else if (operatingMode == FSM_OperatingMode::TRANSITIONING) {
-                    std::cout << "Operating Mode: TRANSITIONING from "
-                              << currentState->stateString << " to "
-                              << nextState->stateString << "\n";
-
-                } else if (operatingMode == FSM_OperatingMode::ESTOP) {
-                    std::cout << "Operating Mode: ESTOP\n";
-                }
-                std::cout << "Gait Type: " << data._gaitScheduler->gaitData.gaitName
-                          << "\n";
-                std::cout << std::endl;
-
-                // Reset iteration counter
-                printIter = 0;
-            }
-
-            // Print robot info about the robot's status
-            // data._gaitScheduler->printGaitInfo();
-             data._desiredStateCommand->printStateCommandInfo();
-
-            break;
-
-        case 1:  // Initializing FSM State transition
-            std::cout << "[CONTROL FSM] Transition initialized from "
-                      << currentState->stateString << " to " << nextState->stateString
-                      << "\n"
-                      << std::endl;
-
-            break;
-
-        case 2:  // Finalizing FSM State transition
-            std::cout << "[CONTROL FSM] Transition finalizing from "
-                      << currentState->stateString << " to " << nextState->stateString
-                      << "\n"
-                      << std::endl;
-
-            break;
     }
 }
 

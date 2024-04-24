@@ -9,7 +9,8 @@
 #include <main_helper.h>
 #include "MIT_Controller.hpp"
 
-int main(int argc, char** argv) {
-  main_helper(argc, argv, new MIT_Controller());
-  return 0;
+int main(int argc, char **argv) {
+    std::cout << "MIT Controller Starts..." << std::endl;
+    main_helper(argc, argv, new MIT_Controller());
+    return 0;
 }

@@ -85,6 +85,7 @@ void DesiredStateCommand<T>::convertToStateCommands() {
   data.stateDes(5) = dt * data.stateDes(11);  // Yaw
 }
 
+// no use
 template <typename T>
 void DesiredStateCommand<T>::setCommandLimits(T minVelX_in, T maxVelX_in,
     T minVelY_in, T maxVelY_in, T minTurnRate_in, T maxTurnRate_in) {
@@ -96,9 +97,7 @@ void DesiredStateCommand<T>::setCommandLimits(T minVelX_in, T maxVelX_in,
   maxTurnRate = maxTurnRate_in;
 }
 
-/**
- *
- */
+// no use
 template <typename T>
 void DesiredStateCommand<T>::desiredStateTrajectory(int N, Vec10<T> dtVec) {
   A = Mat12<T>::Zero();
@@ -144,9 +143,7 @@ float DesiredStateCommand<T>::deadband(float command, T minVal, T maxVal) {
   }
 }
 
-/**
- *
- */
+// no use
 template <typename T>
 void DesiredStateCommand<T>::printRawInfo() {
   // Increment printing iteration

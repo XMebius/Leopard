@@ -19,9 +19,7 @@ bool init_port(void *pSerialPort) {
     return open_flag;
 }
 
-
-
-void read_imu(void *pSerialPort, VectorNavData& vectorNavData) {
+void read_vectorNav(void *pSerialPort, VectorNavData& vectorNavData) {
     while (true) {
         uint8_t check_head[1] = {0xff};
         CSerialPortReadData(pSerialPort, (void*)check_head, 1);

@@ -1,0 +1,34 @@
+__collection-name__: tj-user-parameters
+
+cmpc_gait         : 9
+cmpc_x_drag       : 3
+cmpc_use_sparse   : 0
+cmpc_bonus_swing  : 0
+
+use_wbc           : 1
+
+Kp_body           : [100, 100, 100]
+Kd_body           : [10, 10, 10]
+
+Kp_ori            : [100, 100, 100]
+Kd_ori            : [10, 10, 10]
+
+Kp_foot           : [500, 500, 500]
+Kd_foot           : [10, 10, 10]
+
+Kd_joint          : [1, 0.2, 0.2]
+Kp_joint          : [3, 3, 3]
+
+stance_legs       : 4
+
+use_jcqp          : 0
+jcqp_alpha        : 1.5
+jcqp_max_iter     : 10000
+jcqp_rho          : 1e-07
+jcqp_sigma        : 1e-08
+jcqp_terminate    : 0.1
+
+gait_type             : 4
+gait_period_time      : 0.5
+gait_switching_phase  : 0.5
+gait_override         : 4
