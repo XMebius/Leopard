@@ -204,3 +204,13 @@ sudo apt install libjchart2d-java
 |lcm-logplayer,lcm-logplayer-gui|log回放|
 
 在使用lcm-spy之前需要设置CLASSPATH环境变量，将lcm.jar的路径加入到CLASSPATH中，然后执行`lcm-spy`即可查看数据。或者直接执行脚本lauch_lcm_spy.sh
+
+## 仿真
+
+改动太多，略
+
+1. 在DrawList中可以增加我们自己的obj文件，从厂商那里拿
+2. 在切换user控制器的时候将config中的default-user-parameters-file.yaml改为对应的用户参数文件
+
+
+
