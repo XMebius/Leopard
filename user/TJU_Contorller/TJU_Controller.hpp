@@ -7,6 +7,7 @@
 
 #include <RobotController.h>
 #include "TJU_UserParameters.hpp"
+#include "FSM_States/ControlFSM.h"
 
 class TJU_Controller : public RobotController {
 public:
@@ -24,7 +25,9 @@ public:
 
 
 private:
+    ControlFSM<float>* _controlFSM;
     TJU_UserParameters userParameters;
+
 };
 
 

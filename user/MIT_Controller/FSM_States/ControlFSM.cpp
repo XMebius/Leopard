@@ -347,3 +347,4 @@ FSM_State<T> *ControlFSM<T>::getNextState(FSM_StateName stateName) {
 // RobotRunner a template
 template
 class ControlFSM<float>;
+//template class ControlFSM<float>;

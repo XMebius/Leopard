@@ -16,6 +16,12 @@ public:
     INIT_PARAMETER(cmpc_use_sparse),
     INIT_PARAMETER(cmpc_bonus_swing),
     INIT_PARAMETER(use_wbc),
+    INIT_PARAMETER(sit_down_height),
+    INIT_PARAMETER(stand_up_height),
+    INIT_PARAMETER(sit_down_time),
+    INIT_PARAMETER(stand_up_time),
+    INIT_PARAMETER(Kp_stand),
+    INIT_PARAMETER(Kd_stand),
     INIT_PARAMETER(Kp_body),
     INIT_PARAMETER(Kd_body),
     INIT_PARAMETER(Kp_ori),
@@ -43,6 +49,14 @@ public:
     DECLARE_PARAMETER(double, cmpc_use_sparse);
     DECLARE_PARAMETER(double, cmpc_bonus_swing);
     DECLARE_PARAMETER(double, use_wbc);
+
+    DECLARE_PARAMETER(double, sit_down_height);
+    DECLARE_PARAMETER(double, stand_up_height);
+    DECLARE_PARAMETER(double, sit_down_time);
+    DECLARE_PARAMETER(double, stand_up_time);
+
+    DECLARE_PARAMETER(Vec3<double>, Kp_stand);
+    DECLARE_PARAMETER(Vec3<double>, Kd_stand);
 
     // PD
     DECLARE_PARAMETER(Vec3<double>, Kp_body);

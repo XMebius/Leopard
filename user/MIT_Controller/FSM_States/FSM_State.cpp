@@ -71,60 +71,6 @@ void FSM_State<T>::cartesianImpedanceControl(int leg, Vec3<T> pDes,
   _data->_legController->commands[leg].kdCartesian = kdMat;
 }
 
-/**
- *
- */
-/*
-template <typename T>
-void FSM_State<T>::footstepHeuristicPlacement(int leg) {
-
-  // Create the projection matrix for the 2D foot placement components
-  Mat23<float> projectionMatrix;
-  projectionMatrix << 1, 0, 0,
-                   0, 1, 0;
-
-  Vec3<float> velDes = _data->_desiredStateCommand->data.stateDes.block<3, 1>(6,
-0); Vec3<float> angVelDes = _data->_desiredStateCommand->data.stateDes.block<3,
-1>(9, 0); Mat3<float> rBody = _data->_stateEstimate.rBody;
-
-  // Find each of the footstep locations for the swing feet
-  for (int leg = 0; leg < 4; leg++) {
-    if (_data->_gaitScheduler->gaitData.contactStateScheduled(leg)) {
-      // The leg is in contact so nothing to do here
-
-    } else {
-      if (_data->_gaitScheduler->gaitData._currentGait ==
-GaitType::TRANSITION_TO_STAND) {
-        // Position the legs under the hips to stand...
-        // Could also get rid of this and simply send 0 velocity ang vel
-commands
-        // from the CoM desired planner...
-        Vec3<float> posHip = _data->_quadruped.getHipLocation(leg);
-        footstepLocations.col(leg) <<
-projectionMatrix.transpose()*projectionMatrix*
-                                   (_data->_stateEstimate.position + // rBody *
-posHip); } else {
-        // Pull out the approximate yaw rate component of the robot in the
-world. Vec3<float> yaw_rate; yaw_rate << 0, 0, _stateEstimate.omegaWorld(3);
-
-        Vec3<float> posHip = _data->_quadruped.getHipLocation(leg);
-
-        float timeStance = _data->_gaitScheduler->gaitData.timeStance(leg);
-
-        // Footstep heuristic composed of several parts in the world frame
-        footstepLocations.col(leg) <<
-projectionMatrix.transpose()*projectionMatrix*      // Ground projection
-                                   (_stateEstimate.position + // rBody * posHip
-+                                      // Foot under hips timeStance / 2 *
-velDes +                             // Raibert Heuristic timeStance / 2 *
-(angVelDes.cross(rBody * posHip)) +  // Turning Raibert Heuristic
-                                    (_stateEstimate.vBody - velDes));
-      }
-    }
-
-  }
-}
-*/
 
 /**
  * Gait independent formulation for choosing appropriate GRF and step locations

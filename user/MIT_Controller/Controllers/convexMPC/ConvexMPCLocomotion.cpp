@@ -564,7 +564,6 @@ void ConvexMPCLocomotion::updateMPCIfNeeded(int *mpcTable, ControlFSMData<float>
     }
     //printf("TOTAL SOLVE TIME: %.3f\n", solveTimer.getMs());
   }
-
 }
 
 void ConvexMPCLocomotion::solveDenseMPC(int *mpcTable, ControlFSMData<float> &data) {

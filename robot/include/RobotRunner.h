@@ -56,6 +56,10 @@ class RobotRunner : public PeriodicTask {
   CheetahVisualization* cheetahMainVisualization;
 
  private:
+
+    // debug, set a fstream to output a file containing leg controller
+
+
   float _ini_yaw;
 
   int iter = 0;

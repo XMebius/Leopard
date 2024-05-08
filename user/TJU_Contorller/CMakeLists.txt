@@ -11,6 +11,7 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 file(GLOB_RECURSE SRC_FILES
         "./*.cpp"
+#        "./FSM/*.cpp"
 )
 
 add_executable(tj_ctrl ${SRC_FILES} TJU_Controller.cpp main.cpp)

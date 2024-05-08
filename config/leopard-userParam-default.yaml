@@ -1,34 +1,42 @@
 __collection-name__: user-parameters
 
-cmpc_gait         : 9
-cmpc_x_drag       : 3
-cmpc_use_sparse   : 0
-cmpc_bonus_swing  : 0
+cmpc_gait: 9
+cmpc_x_drag: 3
+cmpc_use_sparse: 0
+cmpc_bonus_swing: 0
 
-use_wbc           : 1
+use_wbc: 1
 
-Kp_body           : [100, 100, 100]
-Kd_body           : [10, 10, 10]
+sit_down_height: 0.07       #机器人趴下时的高度
+stand_up_height: 0.31        #机器人站立时的高度
+sit_down_time: 1.5        #机器人趴下去的时间
+stand_up_time: 1.5        #机器人站起来的时间
 
-Kp_ori            : [100, 100, 100]
-Kd_ori            : [10, 10, 10]
+Kp_stand: [ 160, 120, 550 ]      # stand_up 与 sit_down 的足底笛卡尔坐标系pd参数
+Kd_stand: [ 3, 2, 5 ]
 
-Kp_foot           : [500, 500, 500]
-Kd_foot           : [10, 10, 10]
+Kd_joint: [ 1, 0.2, 0.2 ]
+Kp_joint: [ 3, 3, 3 ]
 
-Kd_joint          : [1, 0.2, 0.2]
-Kp_joint          : [3, 3, 3]
+Kp_body: [ 100, 100, 100 ]
+Kd_body: [ 10, 10, 10 ]
 
-stance_legs       : 4
+Kp_ori: [ 100, 100, 100 ]
+Kd_ori: [ 10, 10, 10 ]
 
-use_jcqp          : 0
-jcqp_alpha        : 1.5
-jcqp_max_iter     : 10000
-jcqp_rho          : 1e-07
-jcqp_sigma        : 1e-08
-jcqp_terminate    : 0.1
+Kp_foot: [ 500, 500, 500 ]
+Kd_foot: [ 10, 10, 10 ]
 
-gait_type             : 4
-gait_period_time      : 0.5
-gait_switching_phase  : 0.5
-gait_override         : 4
+stance_legs: 4
+
+use_jcqp: 0
+jcqp_alpha: 1.5
+jcqp_max_iter: 10000
+jcqp_rho: 1e-07
+jcqp_sigma: 1e-08
+jcqp_terminate: 0.1
+
+gait_type: 4
+gait_period_time: 0.5
+gait_switching_phase: 0.5
+gait_override: 4

@@ -220,10 +220,6 @@ size_t DrawList::addMiniCheetah(Vec4<float> color, bool useOld, bool canHide) {
         _nTotal += 3;
     }
 
-    // printf("add mini cheetah (%d) id %ld\n", (int)canHide, j0);
-    // for(u32 i = 0; i < _canBeHidden.size(); i++) {
-    //   printf(" [%02d] %d\n", i, _canBeHidden[i]);
-    // }
     return j0;
 }
 
