@@ -26,8 +26,6 @@ cd build
 wget https://download.qt.io/archive/qt/5.12/5.12.0/qt-opensource-linux-x64-5.12.0.run
 ```
 
-帐号2152824@tongji.edu.cn 密码Chenyixuan114
-
 执行qt的安装程序，安装位置放在家目录下
 
 ```bash
