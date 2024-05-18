@@ -39,6 +39,7 @@ protected:
   StateEstimatorContainer<float>* _stateEstimator = nullptr;
   StateEstimate<float>* _stateEstimate = nullptr;
   GamepadCommand* _driverCommand = nullptr;
+  BeiTong* _beiTong = nullptr;
   RobotControlParameters* _controlParameters = nullptr;
   DesiredStateCommand<float>* _desiredStateCommand = nullptr;
 

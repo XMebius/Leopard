@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "cppTypes.h"
-#include "../../user/MIT_Controller/MIT_UserParameters.h"
+#include "../../user/TJU_Contorller/TJU_UserParameters.hpp"
 
 /**
  * Enumerated gait types. Preplanned gaits are defined.
@@ -90,7 +90,7 @@ template <typename T>
 class GaitScheduler {
  public:
   // Constructors for the GaitScheduler
-  GaitScheduler(MIT_UserParameters* _userParameters, float _dt);
+  GaitScheduler(TJU_UserParameters* _userParameters, float _dt);
   ~GaitScheduler(){};
 
   // Initialize the Gait Scheduler
@@ -118,7 +118,7 @@ class GaitScheduler {
  private:
   // The quadruped model
   // Quadruped<T>& _quadruped;
-  MIT_UserParameters* userParameters;
+  TJU_UserParameters* userParameters;
 
   // Control loop timestep change
   T dt;

@@ -6,7 +6,7 @@
 
 #include "rt/rt_usb.h"
 
-#define MOTOR_CHEATER   // initial passive
+//#define MOTOR_CHEATER   // initial passive
 
 MotorCmd abad_cmd, hip_cmd, knee_cmd;
 std::vector<MotorCmd> spine_leg_cmd{abad_cmd, hip_cmd, knee_cmd};
@@ -19,10 +19,15 @@ usb_command_t usb_command_drv;
 usb_data_t usb_data_drv;
 usb_torque_t usb_torque_drv;
 
-SerialPort *serial_0 = new SerialPort("/dev/ttyACM0");
-SerialPort *serial_1 = new SerialPort("/dev/ttyACM1");
-SerialPort *serial_2 = new SerialPort("/dev/ttyACM2");
-SerialPort *serial_3 = new SerialPort("/dev/ttyACM3");
+//SerialPort *serial_0 = new SerialPort("/dev/ttyACM0");
+//SerialPort *serial_1 = new SerialPort("/dev/ttyACM1");
+//SerialPort *serial_2 = new SerialPort("/dev/ttyACM2");
+//SerialPort *serial_3 = new SerialPort("/dev/ttyACM3");
+SerialPort *serial_0;
+SerialPort *serial_1;
+SerialPort *serial_2;
+SerialPort *serial_3;
+
 std::vector<SerialPort *> serial = {serial_0, serial_1, serial_2, serial_3};
 
 pthread_mutex_t usb_mutex;
@@ -33,8 +38,8 @@ const float disabled_torque[3] = {0.f, 0.f, 0.f};
 
 // only used for actual robot
 //const float abad_side_sign[4] = {-1.f, -1.f, 1.f, 1.f};
-const float abad_side_sign[4] = {-6.33f, 6.33f, -6.33f, 6.33f};
-const float hip_side_sign[4] = {-6.33f, 6.33f, -6.33f, 6.33f};
+const float abad_side_sign[4] = {6.33f, -6.33f, -6.33f, 6.33f};
+const float hip_side_sign[4] = {6.33f, -6.33f, 6.33f, -6.33f};
 //const float knee_side_sign[4] = {-.6429f, .6429f, -.6429f, .6429f};
 const float knee_side_sign[4] = {-6.33f, 6.33f, -6.33f, 6.33f};
 
@@ -47,6 +52,12 @@ float knee_offset[4] = {0.f, 0.f, 0.f, 0.f};   // 4.35
 //float knee_offset[4] = {-2.111409f, 2.058308f, -1.974702f, 1.96925f};
 
 void init_usb() {
+
+    serial_0 = new SerialPort("/dev/ttyACM0");
+    serial_1 = new SerialPort("/dev/ttyACM1");
+    serial_2 = new SerialPort("/dev/ttyACM2");
+    serial_3 = new SerialPort("/dev/ttyACM3");
+
     // check size
     size_t command_size = sizeof(usb_command_t);
     size_t data_size = sizeof(usb_data_t);
@@ -172,12 +183,12 @@ void usb_to_spine(usb_command_t *cmd, std::vector<MotorCmd> &SPine_leg_cmd, uint
     SPine_leg_cmd[1].W = 0.0;// hip
     SPine_leg_cmd[2].W = 0.0;// knee
 
-    SPine_leg_cmd[0].K_P = 0.0;
-    SPine_leg_cmd[1].K_P = 0.0;
-    SPine_leg_cmd[2].K_P = 0.0;
+    SPine_leg_cmd[0].K_P = 0.05;
+    SPine_leg_cmd[1].K_P = 0.05;
+    SPine_leg_cmd[2].K_P = 0.05;
 
     SPine_leg_cmd[0].K_W = 0.0;// abad
-    SPine_leg_cmd[1].K_W = 0.0;// hip
+    SPine_leg_cmd[1].K_W = 0.0;// hipclear
     SPine_leg_cmd[2].K_W = 0.0;// knee
 
     SPine_leg_cmd[0].T = 0.0;// abad

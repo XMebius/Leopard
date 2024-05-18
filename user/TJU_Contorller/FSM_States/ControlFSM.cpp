@@ -44,6 +44,8 @@ ControlFSM<T>::ControlFSM(Quadruped<T> *_quadruped,
     statesList.passive = new FSM_State_Passive<T>(&data);
 //    statesList.sitDown = new FSM_State_SitDown<T>(&data);
     statesList.standUp = new FSM_State_StandUp<T>(&data);
+    statesList.sitDown = new FSM_State_SitDown<T>(&data);
+    statesList.locomotion = new FSM_State_Locomotion<T>(&data);
 //    statesList.balanceStand = new FSM_State_BalanceStand<T>(&data);
 //    statesList.locomotion = new FSM_State_Locomotion<T>(&data);
 
@@ -60,6 +62,7 @@ ControlFSM<T>::ControlFSM(Quadruped<T> *_quadruped,
 template<typename T>
 void ControlFSM<T>::initialize() {
     // 上电后,passive
+    printf("controlFSM initialized\n");
     currentState = statesList.passive;
     currentState->onEnter();
     nextState = currentState;
@@ -75,19 +78,30 @@ void ControlFSM<T>::runFSM() {
     if (nextState == currentState) {
         switch (currentState->stateName) {
             case FSM_StateName::PASSIVE:
-                if (data._desiredStateCommand->gamepadCommand->leftBumper) { // LB pressed
+                if (data._desiredStateCommand->gamepadCommand->leftBumper ||
+                    data._desiredStateCommand->beiTong->leftBumper) { // LB pressed
                     nextState = statesList.standUp;
                 }
                 break;
             case FSM_StateName::STAND_UP:
                 if (currentState->isBusy()) break;
-                if (data._desiredStateCommand->gamepadCommand->x) { // X pressed
-                    std::cout << "X pressed change to locomotion" << std::endl;
-                    // nextState = statesList.locomotion;
-                } else if (data._desiredStateCommand->gamepadCommand->rightBumper) { // RB pressed
-//                    nextState = statesList.sitDown;
-                } else if (data._desiredStateCommand->gamepadCommand->y) { // Y pressed
-//                    nextState = statesList.balanceStand;
+                if (data._desiredStateCommand->gamepadCommand->x ||
+                    data._desiredStateCommand->beiTong->x) { // X pressed
+                     nextState = statesList.locomotion;
+                } else if (data._desiredStateCommand->gamepadCommand->rightBumper ||
+                           data._desiredStateCommand->beiTong->rightBumper) { // RB pressed
+                    nextState = statesList.sitDown;
+                }
+                break;
+            case FSM_StateName::SIT_DOWN:
+                if (currentState->isBusy()) break;  // wait until the action is done
+                nextState = statesList.passive;
+                break;
+            case FSM_StateName::LOCOMOTION:
+                if (currentState->isBusy()) break;
+                if (data._desiredStateCommand->gamepadCommand->rightBumper ||
+                    data._desiredStateCommand->beiTong->rightBumper) { // RB pressed
+                    nextState = statesList.sitDown;
                 }
                 break;
             default:

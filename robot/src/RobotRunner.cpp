@@ -57,6 +57,7 @@ void RobotRunner::init() {
     _desiredStateCommand =
             new DesiredStateCommand<float>(driverCommand,
                                            &rc_control,
+                                           beiTong,
                                            controlParameters,
                                            &_stateEstimate,
                                            controlParameters->controller_dt);
@@ -70,8 +71,10 @@ void RobotRunner::init() {
     _robot_ctrl->_visualizationData = visualizationData;
     _robot_ctrl->_robotType = robotType;
     _robot_ctrl->_driverCommand = driverCommand;
+    _robot_ctrl->_beiTong = beiTong;
     _robot_ctrl->_controlParameters = controlParameters;
     _robot_ctrl->_desiredStateCommand = _desiredStateCommand;
+
 
     _robot_ctrl->initializeController();
 
@@ -121,7 +124,7 @@ void RobotRunner::run() {
 //                    kdMat << 0, 0, 0, 0, 0, 0, 0, 0, 0;
                     kpMat << 0.4, 0, 0,
                             0, 0.4, 0,
-                            0, 0, 0.1;
+                            0, 0, 0.2;
                     kdMat << 0.001, 0, 0,
                             0, 0.001, 0,
                             0, 0, 0.001;
@@ -175,7 +178,7 @@ void RobotRunner::setupStep() {
 
     // Setup the leg controller for a new iteration
     // TODO: ban ZeroCommand for now.
-//    _legController->zeroCommand();
+    _legController->zeroCommand();
     _legController->setEnabled(true);
     _legController->setMaxTorqueCheetah3(208.5);
 

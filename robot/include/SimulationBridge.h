@@ -17,36 +17,44 @@
 #include "Utilities/SharedMemory.h"
 
 class SimulationBridge {
- public:
-  explicit SimulationBridge(RobotType robot, RobotController* robot_ctrl) : 
-    _robot(robot) {
-     _fakeTaskManager = new PeriodicTaskManager;
-    _robotRunner = new RobotRunner(robot_ctrl, _fakeTaskManager, 0, "robot-task");
-    _userParams = robot_ctrl->getUserControlParameters();
+public:
+    explicit SimulationBridge(RobotType robot, RobotController *robot_ctrl) :
+            _robot(robot) {
+        _fakeTaskManager = new PeriodicTaskManager;
+        _robotRunner = new RobotRunner(robot_ctrl, _fakeTaskManager, 0, "robot-task");
+        _userParams = robot_ctrl->getUserControlParameters();
 
- }
-  void run();
-  void handleControlParameters();
-  void runRobotControl();
-  ~SimulationBridge() {
-    delete _fakeTaskManager;
-    delete _robotRunner;
-  }
-  void run_sbus();
+    }
 
- private:
-  PeriodicTaskManager taskManager;
-  bool _firstControllerRun = true;
-  PeriodicTaskManager* _fakeTaskManager = nullptr;
-  RobotType _robot;
-  RobotRunner* _robotRunner = nullptr;
-  SimulatorMode _simMode;
-  SharedMemoryObject<SimulatorSyncronizedMessage> _sharedMemory;
-  RobotControlParameters _robotParams;
-  ControlParameters* _userParams = nullptr;
-  u64 _iterations = 0;
+    void run();
 
-  std::thread* sbus_thread;
+    void handleControlParameters();
+
+    void runRobotControl();
+
+    ~SimulationBridge() {
+        delete _fakeTaskManager;
+        delete _robotRunner;
+    }
+
+    void run_sbus();
+    void run_beiTong();
+
+private:
+    PeriodicTaskManager taskManager;
+    BeiTong _beiTong;
+    bool _firstControllerRun = true;
+    PeriodicTaskManager *_fakeTaskManager = nullptr;
+    RobotType _robot;
+    RobotRunner *_robotRunner = nullptr;
+    SimulatorMode _simMode;
+    SharedMemoryObject<SimulatorSyncronizedMessage> _sharedMemory;
+    RobotControlParameters _robotParams;
+    ControlParameters *_userParams = nullptr;
+    u64 _iterations = 0;
+
+    std::thread *sbus_thread;
+    std::thread *beiTong_thread;
 };
 
 #endif  // PROJECT_SIMULATIONDRIVER_H

@@ -68,6 +68,7 @@ protected:
     PeriodicTaskManager taskManager;
     PrintTaskStatus statusTask;
     GamepadCommand _gamepadCommand;
+    BeiTong _beiTong;
     VisualizationData _visualizationData;
     CheetahVisualization _mainCheetahVisualization;
     lcm::LCM _interfaceLCM;
@@ -152,6 +153,8 @@ public:
 
     void initHardware();
 
+    void runGamePad();
+
     void runUnitree();
 
     void runWheeltech();
@@ -165,6 +168,7 @@ private:
     VectorNavData _wheeltecData;
     std::thread _wheeltecThread;
     bool _wheeltecInit = false;
+    bool _beiTongInit = false;
 
     bool _load_parameters_from_file;
 };

@@ -36,6 +36,7 @@ void FSM_State_Passive<T>::onEnter() {
 template<typename T>
 bool FSM_State_Passive<T>::isBusy() {
     // not busy, always return false
+    printf("[FSM_State_Passive] isBusy...\n");
     return false;
 }
 
@@ -44,7 +45,6 @@ bool FSM_State_Passive<T>::isBusy() {
  */
 template<typename T>
 void FSM_State_Passive<T>::run() {
-//    printf("[FSM_State_Passive] run...\n");
 //    printf("[FSM_State_Passive] Don't do anything\n");
 }
 

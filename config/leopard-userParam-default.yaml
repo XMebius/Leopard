@@ -12,8 +12,8 @@ stand_up_height: 0.31        #机器人站立时的高度
 sit_down_time: 1.5        #机器人趴下去的时间
 stand_up_time: 1.5        #机器人站起来的时间
 
-Kp_stand: [ 160, 120, 550 ]      # stand_up 与 sit_down 的足底笛卡尔坐标系pd参数
-Kd_stand: [ 3, 2, 5 ]
+Kp_stand: [ 0.6, 0.3, 0.6 ]      # stand_up 与 sit_down 的足底笛卡尔坐标系pd参数
+Kd_stand: [ 0.001, 0.001, 0.001 ]
 
 Kd_joint: [ 1, 0.2, 0.2 ]
 Kp_joint: [ 3, 3, 3 ]
@@ -40,3 +40,5 @@ gait_type: 4
 gait_period_time: 0.5
 gait_switching_phase: 0.5
 gait_override: 4
+
+#use_beitong: 1

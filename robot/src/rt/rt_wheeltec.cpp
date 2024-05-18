@@ -15,7 +15,6 @@ bool init_port(void *pSerialPort) {
                     4096);
     CSerialPortSetReadIntervalTimeout(pSerialPort, 20);
     int open_flag = CSerialPortOpen(pSerialPort);
-    std::cout <<"open_flag: " << open_flag<<std::endl;
     return open_flag;
 }
 
@@ -60,13 +59,14 @@ void read_vectorNav(void *pSerialPort, VectorNavData& vectorNavData) {
             vectorNavData.gyro[0] = imu_data[0];
             vectorNavData.gyro[1] = imu_data[1];
             vectorNavData.gyro[2] = imu_data[2];
+
             vectorNavData.accelerometer[0] = imu_data[3];
             vectorNavData.accelerometer[1] = imu_data[4];
             vectorNavData.accelerometer[2] = imu_data[5];
 
-//            printf("Gyroscope_X(rad/s): %f\n", imu_data[0]);
-//            printf("Gyroscope_Y(rad/s): %f\n", imu_data[1]);
-//            printf("Gyroscope_Z(rad/s): %f\n", imu_data[2]);
+//            printf("Gyroscope_X(rad/s): %f\n", imu_data[0]);  // roll
+//            printf("Gyroscope_Y(rad/s): %f\n", imu_data[1]);  // pitch
+//            printf("Gyroscope_Z(rad/s): %f\n", imu_data[2]);  // yaw
 //            printf("Accelerometer_X(m/s^2): %f\n", imu_data[3]);
 //            printf("Accelerometer_Y(m/s^2): %f\n", imu_data[4]);
 //            printf("Accelerometer_Z(m/s^2): %f\n", imu_data[5]);
@@ -80,9 +80,9 @@ void read_vectorNav(void *pSerialPort, VectorNavData& vectorNavData) {
             int timestamp;
             memcpy(ahrs_data, read_msg, sizeof(float) * 10);
             memcpy(&timestamp, read_msg + 40, sizeof(int));
-            vectorNavData.quat[0] = ahrs_data[6];
+            vectorNavData.quat[0] = ahrs_data[8];
             vectorNavData.quat[1] = ahrs_data[7];
-            vectorNavData.quat[2] = ahrs_data[8];
+            vectorNavData.quat[2] = ahrs_data[6];
             vectorNavData.quat[3] = ahrs_data[9];
 //            printf("Q1: %f\n", ahrs_data[6]);
 //            printf("Q2: %f\n", ahrs_data[7]);

@@ -17,49 +17,55 @@
  * Enumerate all of the FSM states so we can keep track of them.
  */
 enum class FSM_StateName {
-  INVALID,
-  PASSIVE,
-  STAND_UP,
-  SIT_DOWN,
-  LOCOMOTION,
-  BALANCE_STAND
+    INVALID,
+    PASSIVE,
+    STAND_UP,
+    SIT_DOWN,
+    LOCOMOTION,
+//    BALANCE_STAND
 };
 
-template <typename T>
+template<typename T>
 class FSM_State {
- public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  // Generic constructor for all states
-  FSM_State(ControlFSMData<T>* _controlFSMData, FSM_StateName stateNameIn,
-            std::string stateStringNameI);
+    // Generic constructor for all states
+    FSM_State(ControlFSMData<T> *_controlFSMData, FSM_StateName stateNameIn,
+              std::string stateStringNameI);
 
-  // Behavior to be carried out when entering a state
-  virtual void onEnter() = 0;// {}
+    // Behavior to be carried out when entering a state
+    virtual void onEnter() = 0;// {}
 
-  // Run the normal behavior for the state
-  virtual void run() = 0; //{}
-  
-  //在busy状态下,不允许进行状态切换
-  virtual bool isBusy() = 0;
-  //
-  void turnOnAllSafetyChecks();
-  void turnOffAllSafetyChecks();
+    // Run the normal behavior for the state
+    virtual void run() = 0; //{}
 
-  // Holds all of the relevant control data
-  ControlFSMData<T>* _data;
+    //在busy状态下,不允许进行状态切换
+    virtual bool isBusy() = 0;
 
-  // FSM State info
-  FSM_StateName stateName;          // enumerated name of the current state
-  std::string stateString;
+    //
+    void turnOnAllSafetyChecks();
 
-  // Pre controls safety checks
-  bool checkSafeOrientation = false;  // check roll and pitch
+    void turnOffAllSafetyChecks();
 
-  // Post control safety checks
-  bool checkPDesFoot = false;          // do not command footsetps too far
-  bool checkForceFeedForward = false;  // do not command huge forces
-  bool checkLegSingularity = false;    // do not let leg 奇异位置
+    // Holds all of the relevant control data
+    ControlFSMData<T> *_data;
+
+    // FSM State info
+    FSM_StateName stateName;          // enumerated name of the current state
+    std::string stateString;
+
+    // Pre controls safety checks
+    bool checkSafeOrientation = false;  // check roll and pitch
+
+    // Post control safety checks
+    bool checkPDesFoot = false;          // do not command footsetps too far
+    bool checkForceFeedForward = false;  // do not command huge forces
+    bool checkLegSingularity = false;    // do not let leg 奇异位置
+protected:
+    float _delta_abad = 0.126977;
+    float _delta_hip = 0.52602;
+    float _delta_knee = 2.02841725;
 };
 
 #endif  // FSM_State_H

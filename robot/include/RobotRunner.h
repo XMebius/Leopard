@@ -44,6 +44,7 @@ class RobotRunner : public PeriodicTask {
   RobotController* _robot_ctrl;
 
   GamepadCommand* driverCommand;
+  BeiTong* beiTong;
   RobotType robotType;
   VectorNavData* vectorNavData;
   CheaterState<double>* cheaterState;

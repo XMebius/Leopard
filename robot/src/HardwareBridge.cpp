@@ -20,8 +20,9 @@
 #include "rt/rt_usb.h"
 #include "rt/rt_vectornav.h"
 #include "rt/rt_ethercat.h"
-#include "Utilities/Utilities_print.h"
 #include "rt/rt_wheeltec.h"
+#include "rt/rt_beitong.h"
+#include "Utilities/Utilities_print.h"
 
 /*!
  * If an error occurs during initialization, before motors are enabled, print
@@ -241,6 +242,17 @@ void LeopardHardwareBridge::initHardware() {
     printf("[MiniCheetahHardware] Init Unitree USB\n");
     init_usb();
 #endif
+    // init beiTong gamepad through /dev/input
+    if(init_gamepad()){
+        _beiTongInit = true;
+        printf("beiTong gamepad initialize success\n");
+    }
+}
+
+void LeopardHardwareBridge::runGamePad(){
+    // set beiTong gamepad data from /dev/input
+    read_gamepad(_beiTong);
+//    _beiTong.printBeiTong();
 }
 
 void LeopardHardwareBridge::runUnitree() {
@@ -302,6 +314,7 @@ void LeopardHardwareBridge::run() {
 
     _robotRunner = new RobotRunner(_controller, &taskManager, _robotParams.controller_dt, "robot-control");
     _robotRunner->driverCommand = &_gamepadCommand;
+    _robotRunner->beiTong = &_beiTong;
     _robotRunner->spiData = &_spiData;
     _robotRunner->spiCommand = &_spiCommand;
     _robotRunner->robotType = RobotType::LEOPARD;
@@ -313,6 +326,11 @@ void LeopardHardwareBridge::run() {
     _firstRun = false;
     statusTask.start();
 
+    PeriodicMemberFunction<LeopardHardwareBridge> beiTongTask(
+            &taskManager, .001, "beiTong", &LeopardHardwareBridge::runGamePad, this);
+    if(_beiTongInit){
+        beiTongTask.start();
+    }
 
     PeriodicMemberFunction<LeopardHardwareBridge> uniTreeTask(
             &taskManager, .002, "uniTree", &LeopardHardwareBridge::runUnitree, this);

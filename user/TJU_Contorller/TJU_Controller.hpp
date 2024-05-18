@@ -25,6 +25,8 @@ public:
 
 
 private:
+    int iter = 0;
+
     ControlFSM<float>* _controlFSM;
     TJU_UserParameters userParameters;
 

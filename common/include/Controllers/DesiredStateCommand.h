@@ -18,6 +18,7 @@
 #include "cppTypes.h"
 
 #include "SimUtilities/GamepadCommand.h"
+#include "Utilities/BeiTong.h"
 #include "robot/include/rt/rt_rc_interface.h"
 
 /**
@@ -48,11 +49,13 @@ class DesiredStateCommand {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   // Initialize with the GamepadCommand struct
-  DesiredStateCommand(GamepadCommand* command, rc_control_settings* rc_command,
+  DesiredStateCommand(GamepadCommand* command, rc_control_settings* rc_command, BeiTong* beiTong_command,
                       RobotControlParameters* _parameters,
                       StateEstimate<T>* sEstimate, float _dt) {
     gamepadCommand = command;
     rcCommand = rc_command;
+    beiTong = beiTong_command;
+
     stateEstimate = sEstimate;
     parameters = _parameters;
 
@@ -99,8 +102,10 @@ public:
 
   const rc_control_settings* rcCommand;
   const GamepadCommand* gamepadCommand;
+  const BeiTong* beiTong;
 
   bool trigger_pressed = false;
+  bool use_beiTong = true;
 
 private:
   StateEstimate<T>* stateEstimate;
