@@ -14,7 +14,8 @@
  */
 template<typename T>
 FSM_State_Passive<T>::FSM_State_Passive(ControlFSMData<T> *_controlFSMData)
-        : FSM_State<T>(_controlFSMData, FSM_StateName::PASSIVE, "PASSIVE") {
+        : FSM_State<T>(_controlFSMData, FSM_StateName::PASSIVE, "PASSIVE"),
+          _ini_joint_pos(4), _end_joint_pos(4) {
     // Do nothing
     // Set the pre controls safety checks
     this->checkSafeOrientation = false;
@@ -28,6 +29,14 @@ template<typename T>
 void FSM_State_Passive<T>::onEnter() {
 
     printf("[FSM_State_Passive] onEnter...\n");
+    // init_pos
+    for (size_t leg(0); leg < 4; ++leg) {
+        _ini_joint_pos[leg] = this->_data->_legController->datas[leg].q;
+        // keep current joint pos
+        _end_joint_pos[leg][0] = 0.0; // abad
+        _end_joint_pos[leg][1] = 0.0; // hip
+        _end_joint_pos[leg][2] = 0.0; // knee
+    }
 }
 
 /**
@@ -45,7 +54,18 @@ bool FSM_State_Passive<T>::isBusy() {
  */
 template<typename T>
 void FSM_State_Passive<T>::run() {
-//    printf("[FSM_State_Passive] Don't do anything\n");
+    Vec3<T> kp(0.4, 0.4, 0.4);
+    Vec3<T> kd(0.001, 0.001, 0.001);
+
+    for (int leg = 0; leg < 4; leg++) {
+        this->_data->_legController->commands[leg].kpJoint = kp.asDiagonal();
+        this->_data->_legController->commands[leg].kdJoint = kd.asDiagonal();
+
+        this->_data->_legController->commands[leg].qDes =
+                Interpolate::cubicBezier<Vec3<T >>(_ini_joint_pos[leg], _end_joint_pos[leg], 0.1);
+        this->_data->_legController->commands[leg].qdDes =
+                Interpolate::cubicBezierFirstDerivative<Vec3<T >>(_ini_joint_pos[leg], _end_joint_pos[leg], 0.1) / 0.1;
+    }
 }
 
 // template class FSM_State_Passive<double>;

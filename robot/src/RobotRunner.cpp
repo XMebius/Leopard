@@ -45,6 +45,7 @@ void RobotRunner::init() {
     _model = _quadruped.buildModel();
     _jpos_initializer = new JPosInitializer<float>(3., controlParameters->controller_dt);
 
+
     // Always initialize the leg controller and state entimator
     _legController = new LegController<float>(_quadruped);
     _stateEstimator = new StateEstimatorContainer<float>(
@@ -107,44 +108,33 @@ void RobotRunner::run() {
                 _legController->commands[leg].zero();
             }
             _robot_ctrl->Estop();
-        } else { // use gamepad instead of remote controller
-            // Controller
-            if (!_jpos_initializer->IsInitialized(_legController)) {
-                Mat3<float> kpMat;
-                Mat3<float> kdMat;
-                // Update the jpos feedback gains
-                if (robotType == RobotType::MINI_CHEETAH) {
-                    kpMat << 5, 0, 0, 0, 5, 0, 0, 0, 5;
-                    kdMat << 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1;
-                } else if (robotType == RobotType::CHEETAH_3) {
-                    kpMat << 50, 0, 0, 0, 50, 0, 0, 0, 50;
-                    kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-                } else if (robotType == RobotType::LEOPARD) {   // for joint instead of cartesian
-//                    kpMat << 0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02;
-//                    kdMat << 0, 0, 0, 0, 0, 0, 0, 0, 0;
-                    kpMat << 0.4, 0, 0,
-                            0, 0.4, 0,
-                            0, 0, 0.2;
-                    kdMat << 0.001, 0, 0,
-                            0, 0.001, 0,
-                            0, 0, 0.001;
-                } else {
-                    assert(false);
-                }
-
-                for (int leg = 0; leg < 4; leg++) {
-                    _legController->commands[leg].kpJoint = kpMat;
-                    _legController->commands[leg].kdJoint = kdMat;
-                }
+        } // Controller
+        if (!_jpos_initializer->IsInitialized(_legController)) {
+            Mat3<float> kpMat;
+            Mat3<float> kdMat;
+            // Update the jpos feedback gains
+            if (robotType == RobotType::MINI_CHEETAH || robotType == RobotType::LEOPARD ) {
+                kpMat << 5, 0, 0, 0, 5, 0, 0, 0, 5;
+                kdMat << 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1;
+            } else if (robotType == RobotType::CHEETAH_3) {
+                kpMat << 50, 0, 0, 0, 50, 0, 0, 0, 50;
+                kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
             } else {
-                // Run Control
-                _robot_ctrl->runController();
-                cheetahMainVisualization->p = _stateEstimate.position;
-
-                // Update Visualization
-                _robot_ctrl->updateVisualization();
-                cheetahMainVisualization->p = _stateEstimate.position;
+                assert(false);
             }
+
+            for (int leg = 0; leg < 4; leg++) {
+                _legController->commands[leg].kpJoint = kpMat;
+                _legController->commands[leg].kdJoint = kdMat;
+            }
+        } else {
+            // Run Control
+            _robot_ctrl->runController();
+            cheetahMainVisualization->p = _stateEstimate.position;
+
+            // Update Visualization
+            _robot_ctrl->updateVisualization();
+            cheetahMainVisualization->p = _stateEstimate.position;
         }
     }
 

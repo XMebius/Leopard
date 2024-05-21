@@ -6,7 +6,7 @@
 
 
 int gampad_fd;
-const char* gamepad_path = "/dev/input/event23";
+const char* gamepad_path = "/dev/input/event21";
 struct input_event beiTong_ev;
 
 bool init_gamepad() {

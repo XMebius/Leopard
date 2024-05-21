@@ -48,8 +48,8 @@ void FSM_State_SitDown<T>::run() {
 
     if (t > 1.) { t = 1.; }
 
-    Vec3<T> kp(0.5, 0.2, 0.6);
-    Vec3<T> kd(0.001, 0.001, 0.001);
+    Vec3<T> kp(0.8, 0.6, 1.8);
+    Vec3<T> kd(0.008, 0.003, 0.02);
 
     for (size_t leg(0); leg < 4; ++leg) {
         this->_data->_legController->commands[leg].kpJoint = kp.asDiagonal();

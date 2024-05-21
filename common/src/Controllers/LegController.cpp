@@ -9,6 +9,7 @@
  */
 
 #include "Controllers/LegController.h"
+#include "Utilities/Utilities_print.h"
 
 /*!
  * Zero the leg command so the leg will not output torque
@@ -96,7 +97,11 @@ void LegController<T>::updateData(const SpiData *spiData) {
         // J and p
         computeLegJacobianAndPosition<T>(_quadruped, datas[leg].q, &(datas[leg].J),
                                          &(datas[leg].p), leg);
-
+//// print J matrix
+//        printf("J matrix for leg %d\n", leg);
+//        for (int i = 0; i < 3; i++) {
+//            printf("%f %f %f\n", datas[leg].J(i, 0), datas[leg].J(i, 1), datas[leg].J(i, 2));
+//        }
         // v
         datas[leg].v = datas[leg].J * datas[leg].qd;
     }
@@ -119,6 +124,8 @@ void LegController<T>::updateData(const TiBoardData *tiBoardData) {
                                              nullptr, leg);
             datas[leg].tauEstimate[joint] = tiBoardData[leg].tau[joint];
         }
+
+
         //printf("%d leg, position: %f, %f, %f\n", leg, datas[leg].p[0], datas[leg].p[1], datas[leg].p[2]);
         //printf("%d leg, velocity: %f, %f, %f\n", leg, datas[leg].v[0], datas[leg].v[1], datas[leg].v[2]);
     }
@@ -133,8 +140,11 @@ void LegController<T>::updateCommand(SpiCommand *spiCommand) {
         // tauFF
         Vec3<T> legTorque = commands[leg].tauFeedForward;
 
+//        printf("leg %d, tauFF: %f, %f, %f\n", leg, legTorque(0), legTorque(1), legTorque(2));
+
         // forceFF
         Vec3<T> footForce = commands[leg].forceFeedForward;
+//        printf("leg %d, forceFF: %f, %f, %f\n", leg, footForce(0), footForce(1), footForce(2));
 
         // cartesian PD
         footForce +=
@@ -142,6 +152,13 @@ void LegController<T>::updateCommand(SpiCommand *spiCommand) {
         footForce +=
                 commands[leg].kdCartesian * (commands[leg].vDes - datas[leg].v);
 
+//        printf("leg %d, forceFF after cartesian PD: %f, %f, %f\n", leg, footForce(0), footForce(1), footForce(2));
+
+        //print J matrx
+//        printf("J matrix for leg %d\n", leg);
+//        for (int i = 0; i < 3; i++) {
+//            printf("%f %f %f\n", datas[leg].J(i, 0), datas[leg].J(i, 1), datas[leg].J(i, 2));
+//        }
         // Torque
         legTorque += datas[leg].J.transpose() * footForce;
 
@@ -174,15 +191,8 @@ void LegController<T>::updateCommand(SpiCommand *spiCommand) {
                 commands[leg].kpJoint * (commands[leg].qDes - datas[leg].q) +
                 commands[leg].kdJoint * (commands[leg].qdDes - datas[leg].qd);
 
-//        printf("leg: %d, tau: %f, %f, %f\n", leg, legTorque(0), legTorque(1), legTorque(2));
-//        printf("leg: %d, kp_abad: %f, kp_hip: %f, kp_knee: %f\n", leg, spiCommand->kp_abad[leg],
-//               spiCommand->kp_hip[leg], spiCommand->kp_knee[leg]);
-//        printf("leg: %d, kd_abad: %f, kd_hip: %f, kd_knee: %f\n", leg, spiCommand->kd_abad[leg],
-//               spiCommand->kd_hip[leg], spiCommand->kd_knee[leg]);
-//        printf("leg: %d, q_des_abad: %f, q_des_hip: %f, q_des_knee: %f\n", leg, spiCommand->q_des_abad[leg],
-//               spiCommand->q_des_hip[leg], spiCommand->q_des_knee[leg]);
-//        printf("leg: %d, qd_des_abad: %f, qd_des_hip: %f, qd_des_knee: %f\n", leg, spiCommand->qd_des_abad[leg],
-//               spiCommand->qd_des_hip[leg], spiCommand->qd_des_knee[leg]);
+        // print tauEstimate
+//        printf("leg %d, tauEstimate: %f, %f, %f\n", leg, datas[leg].tauEstimate(0), datas[leg].tauEstimate(1), datas[leg].tauEstimate(2));
 
         spiCommand->flags[leg] = _legsEnabled ? 1 : 0;
     }

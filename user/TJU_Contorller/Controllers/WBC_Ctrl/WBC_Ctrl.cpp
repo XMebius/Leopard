@@ -78,17 +78,6 @@ void WBC_Ctrl<T>::run(void *input, ControlFSMData<T> &data) {
     // WBC Computation
     _ComputeWBC();
 
-    // TEST
-    //T dt(0.002);
-    //for(size_t i(0); i<12; ++i){
-    //_des_jpos[i] = _state.q[i] + _state.qd[i] * dt + 0.5 * _wbic_data->_qddot[i+6] * dt * dt;
-    //_des_jvel[i] = _state.qd[i] + _wbic_data->_qddot[i+6]*dt;
-    //}
-
-    //_ContactTaskUpdateTEST(input, data);
-    //_ComputeWBC();
-    // END of TEST
-
     // Update Leg Command
     _UpdateLegCMD(data);
 
@@ -124,16 +113,16 @@ void WBC_Ctrl<T>::_UpdateLegCMD(ControlFSMData<T> &data) {
     }
 
 
-    // Knee joint non flip barrier
-    for (size_t leg(0); leg < 4; ++leg) {
-        if (cmd[leg].qDes[2] < 0.3) {
-            cmd[leg].qDes[2] = 0.3;
-        }
-        if (data._legController->datas[leg].q[2] < 0.3) {
-            T knee_pos = data._legController->datas[leg].q[2];
-            cmd[leg].tauFeedForward[2] = 1. / (knee_pos * knee_pos + 0.02);
-        }
-    }
+//    // Knee joint non flip barrier
+//    for (size_t leg(0); leg < 4; ++leg) {
+//        if (cmd[leg].qDes[2] < 0.3) {
+//            cmd[leg].qDes[2] = 0.3;
+//        }
+//        if (data._legController->datas[leg].q[2] < 0.3) {
+//            T knee_pos = data._legController->datas[leg].q[2];
+//            cmd[leg].tauFeedForward[2] = 1. / (knee_pos * knee_pos + 0.02);
+//        }
+//    }
 }
 
 template<typename T>

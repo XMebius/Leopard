@@ -12,11 +12,18 @@ stand_up_height: 0.31        #机器人站立时的高度
 sit_down_time: 1.5        #机器人趴下去的时间
 stand_up_time: 1.5        #机器人站起来的时间
 
-Kp_stand: [ 0.6, 0.3, 0.6 ]      # stand_up 与 sit_down 的足底笛卡尔坐标系pd参数
-Kd_stand: [ 0.001, 0.001, 0.001 ]
+#Kp_stand: [ 0.6, 0.3, 0.6 ]      # stand_up 与 sit_down 的足底笛卡尔坐标系pd参数
+#Kd_stand: [ 0.001, 0.001, 0.001 ]
+Kp_stand             : [0.8, 0.6, 1.8]      # stand_up 与 sit_down 的足底笛卡尔坐标系pd参数
+Kd_stand             : [0.008, 0.003, 0.02]
+#Kp_stand             : [160, 120, 550]      # stand_up 与 sit_down 的足底笛卡尔坐标系pd参数
+#Kd_stand             : [3, 2, 5]
 
-Kd_joint: [ 1, 0.2, 0.2 ]
-Kp_joint: [ 3, 3, 3 ]
+#Kd_joint: [ 1, 0.2, 0.2 ]
+#Kp_joint: [ 3, 3, 3 ]
+Kp_joint: [0.8, 0.6, 1.8]
+Kd_joint: [0.008, 0.003, 0.02]
+
 
 Kp_body: [ 100, 100, 100 ]
 Kd_body: [ 10, 10, 10 ]
@@ -26,6 +33,15 @@ Kd_ori: [ 10, 10, 10 ]
 
 Kp_foot: [ 500, 500, 500 ]
 Kd_foot: [ 10, 10, 10 ]
+
+#Kp_body: [ 30, 30, 30 ]
+#Kd_body: [ 5, 5, 5 ]
+
+#Kp_ori: [ 30, 30, 30 ]
+#Kd_ori: [ 5, 5, 5 ]
+#
+#Kp_foot: [ 30, 500, 30 ]
+#Kd_foot: [ 5, 5, 5 ]
 
 stance_legs: 4
 

@@ -53,7 +53,7 @@ private:
     ControlParameters *_userParams = nullptr;
     u64 _iterations = 0;
 
-    std::thread *sbus_thread;
+//    std::thread *sbus_thread;
     std::thread *beiTong_thread;
 };
 

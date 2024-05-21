@@ -68,8 +68,8 @@ class RobotRunner : public PeriodicTask {
   void setupStep();
   void finalizeStep();
 
-  JPosInitializer<float>* _jpos_initializer;
   Quadruped<float> _quadruped;
+  JPosInitializer<float>* _jpos_initializer = nullptr;
   LegController<float>* _legController = nullptr;
   StateEstimate<float> _stateEstimate;
   StateEstimatorContainer<float>* _stateEstimator;

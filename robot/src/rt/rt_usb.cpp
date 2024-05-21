@@ -19,16 +19,11 @@ usb_command_t usb_command_drv;
 usb_data_t usb_data_drv;
 usb_torque_t usb_torque_drv;
 
-//SerialPort *serial_0 = new SerialPort("/dev/ttyACM0");
-//SerialPort *serial_1 = new SerialPort("/dev/ttyACM1");
-//SerialPort *serial_2 = new SerialPort("/dev/ttyACM2");
-//SerialPort *serial_3 = new SerialPort("/dev/ttyACM3");
 SerialPort *serial_0;
 SerialPort *serial_1;
 SerialPort *serial_2;
 SerialPort *serial_3;
-
-std::vector<SerialPort *> serial = {serial_0, serial_1, serial_2, serial_3};
+std::vector<SerialPort *> serial;
 
 pthread_mutex_t usb_mutex;
 
@@ -47,9 +42,6 @@ const float knee_side_sign[4] = {-6.33f, 6.33f, -6.33f, 6.33f};
 float abad_offset[4] = {0.f, 0.f, 0.f, 0.f};
 float hip_offset[4] = {0.f, 0.f, 0.f, 0.f};
 float knee_offset[4] = {0.f, 0.f, 0.f, 0.f};   // 4.35
-//float abad_offset[4] = {0.266933f, -0.208075f, -0.311219f, 0.226977f};
-//float hip_offset[4] = {0.549557f, -0.459771f, 0.526293f, -0.568459f};
-//float knee_offset[4] = {-2.111409f, 2.058308f, -1.974702f, 1.96925f};
 
 void init_usb() {
 
@@ -57,6 +49,7 @@ void init_usb() {
     serial_1 = new SerialPort("/dev/ttyACM1");
     serial_2 = new SerialPort("/dev/ttyACM2");
     serial_3 = new SerialPort("/dev/ttyACM3");
+    serial = {serial_0, serial_1, serial_2, serial_3};
 
     // check size
     size_t command_size = sizeof(usb_command_t);
@@ -174,18 +167,39 @@ void usb_to_spine(usb_command_t *cmd, std::vector<MotorCmd> &SPine_leg_cmd, uint
 //    printf("leg: %d abad_kd: %f, hip_kd: %f, knee_kd: %f\n", leg, SPine_leg_cmd[0].K_W, SPine_leg_cmd[1].K_W, SPine_leg_cmd[2].K_W);
 //    printf("leg: %d abad_tau: %f, hip_tau: %f, knee_tau: %f\n\n", leg, SPine_leg_cmd[0].T, SPine_leg_cmd[1].T, SPine_leg_cmd[2].T);
 #else
+//    (void) cmd;
+//    SPine_leg_cmd[0].Pos = 0.0 + abad_offset[leg];// abad
+//    SPine_leg_cmd[1].Pos = 0.0 + hip_offset[leg];// hip
+//    SPine_leg_cmd[2].Pos = 0.0 + knee_offset[leg];// knee
+//
+//    SPine_leg_cmd[0].W = 0.0;// abad
+//    SPine_leg_cmd[1].W = 0.0;// hip
+//    SPine_leg_cmd[2].W = 0.0;// knee
+//
+//    SPine_leg_cmd[0].K_P = 0.05;
+//    SPine_leg_cmd[1].K_P = 0.05;
+//    SPine_leg_cmd[2].K_P = 0.05;
+//
+//    SPine_leg_cmd[0].K_W = 0.0;// abad
+//    SPine_leg_cmd[1].K_W = 0.0;// hipclear
+//    SPine_leg_cmd[2].K_W = 0.0;// knee
+//
+//    SPine_leg_cmd[0].T = 0.0;// abad
+//    SPine_leg_cmd[1].T = 0.0;// hip
+//    SPine_leg_cmd[2].T = 0.0;// knee
+
     (void) cmd;
-    SPine_leg_cmd[0].Pos = 0.0 + abad_offset[leg];// abad
-    SPine_leg_cmd[1].Pos = 0.0 + hip_offset[leg];// hip
-    SPine_leg_cmd[2].Pos = 0.0 + knee_offset[leg];// knee
+    SPine_leg_cmd[0].Pos = 0.0;// abad
+    SPine_leg_cmd[1].Pos = 0.0;// hip
+    SPine_leg_cmd[2].Pos = 0.0;// knee
 
     SPine_leg_cmd[0].W = 0.0;// abad
     SPine_leg_cmd[1].W = 0.0;// hip
     SPine_leg_cmd[2].W = 0.0;// knee
 
-    SPine_leg_cmd[0].K_P = 0.05;
-    SPine_leg_cmd[1].K_P = 0.05;
-    SPine_leg_cmd[2].K_P = 0.05;
+    SPine_leg_cmd[0].K_P = 0.0;
+    SPine_leg_cmd[1].K_P = 0.0;
+    SPine_leg_cmd[2].K_P = 0.0;
 
     SPine_leg_cmd[0].K_W = 0.0;// abad
     SPine_leg_cmd[1].K_W = 0.0;// hipclear

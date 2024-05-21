@@ -6,12 +6,11 @@
 #include "ControlFSMData.h"
 
 // Normal robot states
-#define K_INVALID         (0)
-#define K_PASSIVE         (1)
-#define K_STAND_UP        (2)
-#define K_SIT_DOWN        (3)
-#define K_LOCOMOTION      (4)
-#define K_BALANCE_STAND   (5)
+#define K_PASSIVE         (0)
+#define K_STAND_UP        (1)
+#define K_SIT_DOWN        (2)
+#define K_LOCOMOTION      (3)
+#define K_BALANCE_STAND   (4)
 
 /**
  * Enumerate all of the FSM states so we can keep track of them.
@@ -63,9 +62,12 @@ public:
     bool checkForceFeedForward = false;  // do not command huge forces
     bool checkLegSingularity = false;    // do not let leg 奇异位置
 protected:
-    float _delta_abad = 0.126977;
-    float _delta_hip = 0.52602;
-    float _delta_knee = 2.02841725;
+//    float _delta_abad = 0.026977;
+    float _delta_abad = 0.0028977;
+//    float _delta_hip = 0.52602;
+    float _delta_hip = 0.62602;
+//    float _delta_knee = 2.0202;
+    float _delta_knee = 2.22841725;
 };
 
 #endif  // FSM_State_H

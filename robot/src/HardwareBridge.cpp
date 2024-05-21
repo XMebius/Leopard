@@ -336,11 +336,11 @@ void LeopardHardwareBridge::run() {
             &taskManager, .002, "uniTree", &LeopardHardwareBridge::runUnitree, this);
     uniTreeTask.start();
 
-    // rc controller
-    _port = init_sbus(false);  // Not Simulation
-    PeriodicMemberFunction<HardwareBridge> sbusTask(
-            &taskManager, .005, "rc_controller", &HardwareBridge::run_sbus, this);
-    sbusTask.start();
+//    // rc controller
+//    _port = init_sbus(false);  // Not Simulation
+//    PeriodicMemberFunction<HardwareBridge> sbusTask(
+//            &taskManager, .005, "rc_controller", &HardwareBridge::run_sbus, this);
+//    sbusTask.start();
 
     PeriodicMemberFunction<LeopardHardwareBridge> wheeltecTask(
             &taskManager, .005, "wheeltec", &LeopardHardwareBridge::runWheeltech, this);

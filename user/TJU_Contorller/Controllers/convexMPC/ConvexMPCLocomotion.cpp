@@ -183,8 +183,6 @@ void ConvexMPCLocomotion::run(ControlFSMData<float> &data) {
             omniMode ? v_des_robot : seResult.rBody.transpose() * v_des_robot;
     Vec3<float> v_robot = seResult.vWorld;
 
-    pretty_print(v_des_world, std::cout, "v des world");
-    printf("yaw_turn_des: %.3f\n", _yaw_turn_rate);
     //Integral-esque pitche and roll compensation
     if (fabs(v_robot[0]) > .2)   //avoid dividing by zero
     {
@@ -298,9 +296,9 @@ void ConvexMPCLocomotion::run(ControlFSMData<float> &data) {
     Kp_stance = 0 * Kp;
 
 
-    Kd << 7, 0, 0,
-            0, 7, 0,
-            0, 0, 7;
+    Kd << 0.007, 0, 0,
+            0, 0.003, 0,
+            0, 0, 0.02;
     Kd_stance = Kd;
     // gait
     Vec4<float> contactStates = gait->getContactState();

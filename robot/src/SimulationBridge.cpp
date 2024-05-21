@@ -262,7 +262,7 @@ void SimulationBridge::runRobotControl() {
         _robotRunner->init();
         _firstControllerRun = false;
 
-        sbus_thread = new std::thread(&SimulationBridge::run_sbus, this);
+//        sbus_thread = new std::thread(&SimulationBridge::run_sbus, this);
         beiTong_thread = new std::thread(&SimulationBridge::run_beiTong, this);
     }
     _robotRunner->run();

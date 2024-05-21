@@ -78,17 +78,17 @@ void ControlFSM<T>::runFSM() {
     if (nextState == currentState) {
         switch (currentState->stateName) {
             case FSM_StateName::PASSIVE:
-                if (data._desiredStateCommand->gamepadCommand->leftBumper ||
+                if (data.controlParameters->control_mode == K_STAND_UP ||
                     data._desiredStateCommand->beiTong->leftBumper) { // LB pressed
                     nextState = statesList.standUp;
                 }
                 break;
             case FSM_StateName::STAND_UP:
                 if (currentState->isBusy()) break;
-                if (data._desiredStateCommand->gamepadCommand->x ||
+                if (data.controlParameters->control_mode == K_LOCOMOTION ||
                     data._desiredStateCommand->beiTong->x) { // X pressed
                      nextState = statesList.locomotion;
-                } else if (data._desiredStateCommand->gamepadCommand->rightBumper ||
+                } else if (data.controlParameters->control_mode == K_SIT_DOWN ||
                            data._desiredStateCommand->beiTong->rightBumper) { // RB pressed
                     nextState = statesList.sitDown;
                 }
@@ -99,9 +99,9 @@ void ControlFSM<T>::runFSM() {
                 break;
             case FSM_StateName::LOCOMOTION:
                 if (currentState->isBusy()) break;
-                if (data._desiredStateCommand->gamepadCommand->rightBumper ||
-                    data._desiredStateCommand->beiTong->rightBumper) { // RB pressed
-                    nextState = statesList.sitDown;
+                if (data.controlParameters->control_mode == K_STAND_UP ||
+                    data._desiredStateCommand->beiTong->leftBumper) { // RB pressed
+                    nextState = statesList.standUp;
                 }
                 break;
             default:

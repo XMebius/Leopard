@@ -24,14 +24,14 @@ void TJU_Controller::initializeController() {
  */
 void TJU_Controller::runController() {
 //    iter++;
-
-//    _desiredStateCommand->convertToStateCommands();
+//
+////    _desiredStateCommand->convertToStateCommands();
 //    if (iter % 100 == 0){
 //        printf("leftAnalogStick: %.3f, %.3f\n", _desiredStateCommand->leftAnalogStick[0], _desiredStateCommand->leftAnalogStick[1]);
 //        // print rightAnalogStick
 //        printf("rightAnalogStick: %.3f, %.3f\n", _desiredStateCommand->rightAnalogStick[0], _desiredStateCommand->rightAnalogStick[1]);
 //    }
-    _controlFSM->data._desiredStateCommand->convertToStateCommands();
+    _desiredStateCommand->convertToStateCommands();
 
     _controlFSM->runFSM();
 
