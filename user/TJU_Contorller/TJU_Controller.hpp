@@ -28,6 +28,7 @@ private:
     int iter = 0;
 
     ControlFSM<float>* _controlFSM;
+    GaitScheduler<float>* _gaitScheduler;
     TJU_UserParameters userParameters;
 
 };

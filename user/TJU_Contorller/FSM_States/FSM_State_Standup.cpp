@@ -14,8 +14,10 @@
 template<typename T>
 FSM_State_StandUp<T>::FSM_State_StandUp(ControlFSMData<T> *_controlFSMData)
         : FSM_State<T>(_controlFSMData, FSM_StateName::STAND_UP, "STAND_UP"),
-          _ini_joint_pos(4), _end_joint_pos(4) {
+          _ini_foot_pos(4), _ini_joint_pos(4), _end_joint_pos(4) {
+    //          _ini_joint_pos(4), _end_joint_pos(4) {
     //站立状态是确定的,不需要安全检查
+//    this->turnOnAllSafetyChecks();
     this->turnOffAllSafetyChecks();
 }
 
@@ -26,24 +28,15 @@ void FSM_State_StandUp<T>::onEnter() {
     // Reset iteration counter
     iter = 0;
 
-//    float l1 = this->_data->_quadruped->_hipLinkLength; // 0.209
-//    float l2 = this->_data->_quadruped->_kneeLinkLength; // 0.195
-//    float h  = this->_data->userParameters->stand_up_height;   // 0.31
-//
-//    float theta1 = -acosf((l1*l1+h*h-l2*l2)/(2*l1*h));  // -0.667655
-//    float theta2 = PI - acosf((l1*l1+l2*l2-h*h)/(2*l1*l2)); // 1.393274
-//    printf("theta1: %f, theta2: %f\n", theta1, theta2);
+    for (int leg(0); leg < 4; ++leg) {
+        T hMax = 0.29;
+        Vec3<T> pDes = this->_data->_legController->datas[leg].p;
+        pDes[2] = -hMax;
 
-    float theta_abad = this->_delta_abad;
-    float theta_hip = this->_delta_hip;
-    float theta_knee = this->_delta_knee;
-
-    for (size_t leg(0); leg < 4; ++leg) {
         _ini_joint_pos[leg] = this->_data->_legController->datas[leg].q;
-
-        _end_joint_pos[leg][0] = theta_abad; // abad
-        _end_joint_pos[leg][1] = theta_hip;    // hip
-        _end_joint_pos[leg][2] = theta_knee;    // knee
+        _end_joint_pos[leg] = this->_data->_legController->inverseKinematics(pDes, leg);
+        printf("leg: %d, pDes: %f, %f, %f\n", leg, pDes[0], pDes[1], pDes[2]);
+        printf("leg: %d, abad_qDes: %f , hip_qDes: %f , knee_qDes: %f\n", leg, _end_joint_pos[leg][0], _end_joint_pos[leg][1], _end_joint_pos[leg][2]);
     }
 }
 
@@ -52,43 +45,25 @@ void FSM_State_StandUp<T>::onEnter() {
  */
 template<typename T>
 void FSM_State_StandUp<T>::run() {
-
     iter++;
-    T stand_up_time = this->_data->userParameters->stand_up_time;
-    T t = (iter * this->_data->controlParameters->controller_dt) / stand_up_time;
+//    T hMax = 0.29;
+    T progress = 1 * iter * this->_data->controlParameters->controller_dt;
 
-    if (t > 1.) { t = 1.; }
+    if (progress > 1.0) { progress = 1.0; }
 
-    Vec3<T> kp(this->_data->userParameters->Kp_stand[0],
-               this->_data->userParameters->Kp_stand[1],
-               this->_data->userParameters->Kp_stand[2]);
-    Vec3<T> kd(this->_data->userParameters->Kd_stand[0],
-               this->_data->userParameters->Kd_stand[1],
-               this->_data->userParameters->Kd_stand[2]);
-    for (int leg = 0; leg < 4; leg++) {
-        this->_data->_legController->commands[leg].kpJoint = kp.asDiagonal();
-        this->_data->_legController->commands[leg].kdJoint = kd.asDiagonal();
+    for (int i = 0; i < 4; i++) {
+//        Vec3<T> pDes = _ini_foot_pos[i];
+////        pDes[2] = progress * (-hMax) + (1. - progress) * _ini_foot_pos[i][2];
+//        pDes[2] = -hMax;
 
-        this->_data->_legController->commands[leg].qDes
-                = Interpolate::cubicBezier<Vec3<T>>(_ini_joint_pos[leg], _end_joint_pos[leg], t);
-        this->_data->_legController->commands[leg].qdDes
-                = Interpolate::cubicBezierFirstDerivative<Vec3<T>>(_ini_joint_pos[leg], _end_joint_pos[leg], t) /
-                  stand_up_time;
-//        printf("leg: %d, abad_qDes: %f\n", leg, this->_data->_legController->commands[leg].qDes[0]);
-//        printf("leg: %d, hip_qDes: %f\n", leg, this->_data->_legController->commands[leg].qDes[1]);
-//        printf("leg: %d, knee_qDes: %f\n\n", leg, this->_data->_legController->commands[leg].qDes[2]);
-//        printf("leg: %d, abad_qdDes: %f\n", leg, this->_data->_legController->commands[leg].qdDes[0]);
-//        printf("leg: %d, hip_qdDes: %f\n", leg, this->_data->_legController->commands[leg].qdDes[1]);
-//        printf("leg: %d, knee_qdDes: %f\n\n", leg, this->_data->_legController->commands[leg].qdDes[2]);
-//        printf("leg: %d, kp: %f, %f, %f\n", leg,
-//               this->_data->_legController->commands[leg].kpJoint(0,0),
-//               this->_data->_legController->commands[leg].kpJoint(1,1),
-//               this->_data->_legController->commands[leg].kpJoint(2,2));
-//        printf("leg: %d, kd: %f, %f, %f\n\n", leg,
-//               this->_data->_legController->commands[leg].kdJoint(0,0),
-//               this->_data->_legController->commands[leg].kdJoint(1,1),
-//               this->_data->_legController->commands[leg].kdJoint(2,2));
+//        _end_joint_pos[i] = this->_data->_legController->inverseKinematics(pDes, i);
+        this->_data->_legController->commands[i].qDes = Interpolate::cubicBezier<Vec3<T>>(_ini_joint_pos[i], _end_joint_pos[i], progress);
+        this->_data->_legController->commands[i].qdDes
+                = Interpolate::cubicBezierFirstDerivative<Vec3<T>>(_ini_joint_pos[i], _end_joint_pos[i], progress);
+        this->_data->_legController->commands[i].kpJoint = Vec3<T>(1.8, 1.8, 1.8).asDiagonal();
+        this->_data->_legController->commands[i].kdJoint = Vec3<T>(0.02, 0.02, 0.02).asDiagonal();
     }
+
 }
 
 /**
@@ -97,13 +72,13 @@ void FSM_State_StandUp<T>::run() {
 template<typename T>
 bool FSM_State_StandUp<T>::isBusy() {
 
-    T t = (iter * this->_data->controlParameters->controller_dt) /
-          (this->_data->userParameters->stand_up_time);
-
-    if (t < 1.0f)
-        return true;
-    else
-        return false;
+//    T t = (iter * this->_data->controlParameters->controller_dt) /
+//          (this->_data->userParameters->stand_up_time);
+//
+//    if (t < 1.0f)
+//        return true;
+//    else
+    return false;
 }
 
 // template class FSM_State_StandUp<double>;

@@ -84,6 +84,7 @@ void read_vectorNav(void *pSerialPort, VectorNavData& vectorNavData) {
             vectorNavData.quat[1] = ahrs_data[7];
             vectorNavData.quat[2] = ahrs_data[6];
             vectorNavData.quat[3] = ahrs_data[9];
+//
 //            printf("Q1: %f\n", ahrs_data[6]);
 //            printf("Q2: %f\n", ahrs_data[7]);
 //            printf("Q3: %f\n", ahrs_data[8]);

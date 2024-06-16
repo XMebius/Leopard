@@ -10,7 +10,8 @@ FSM_State_SitDown<T>::FSM_State_SitDown(ControlFSMData<T> *_controlFSMData)
         : FSM_State<T>(_controlFSMData, FSM_StateName::SIT_DOWN, "SIT_DOWN"), _ini_joint_pos(4),
           _end_joint_pos(4) {
     //  回复状态是确定的,不需要安全检查
-    this->turnOffAllSafetyChecks();
+//    this->turnOffAllSafetyChecks();
+    this->turnOnAllSafetyChecks();
 }
 
 template<typename T>
@@ -48,8 +49,8 @@ void FSM_State_SitDown<T>::run() {
 
     if (t > 1.) { t = 1.; }
 
-    Vec3<T> kp(0.8, 0.6, 1.8);
-    Vec3<T> kd(0.008, 0.003, 0.02);
+    Vec3<T> kp(1.8, 2.0, 2.7);
+    Vec3<T> kd(0.02, 0.020, 0.021);
 
     for (size_t leg(0); leg < 4; ++leg) {
         this->_data->_legController->commands[leg].kpJoint = kp.asDiagonal();

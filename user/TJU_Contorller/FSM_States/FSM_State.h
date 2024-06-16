@@ -4,13 +4,14 @@
 #include <stdio.h>
 
 #include "ControlFSMData.h"
+#include "Controllers/GaitScheduler.h"
 
 // Normal robot states
-#define K_PASSIVE         (0)
-#define K_STAND_UP        (1)
-#define K_SIT_DOWN        (2)
-#define K_LOCOMOTION      (3)
-#define K_BALANCE_STAND   (4)
+//#define K_PASSIVE         (0)
+//#define K_STAND_UP        (1)
+//#define K_SIT_DOWN        (2)
+//#define K_LOCOMOTION      (3)
+//#define K_BALANCE_STAND   (4)
 
 /**
  * Enumerate all of the FSM states so we can keep track of them.
@@ -21,7 +22,8 @@ enum class FSM_StateName {
     STAND_UP,
     SIT_DOWN,
     LOCOMOTION,
-//    BALANCE_STAND
+    RECOVERY_STAND,
+    BALANCE_STAND,
 };
 
 template<typename T>
@@ -42,7 +44,8 @@ public:
     //在busy状态下,不允许进行状态切换
     virtual bool isBusy() = 0;
 
-    //
+    void jointPDControl(int leg, Vec3<T> qDes, Vec3<T> qdDes);
+
     void turnOnAllSafetyChecks();
 
     void turnOffAllSafetyChecks();
@@ -61,13 +64,29 @@ public:
     bool checkPDesFoot = false;          // do not command footsetps too far
     bool checkForceFeedForward = false;  // do not command huge forces
     bool checkLegSingularity = false;    // do not let leg 奇异位置
+
+    // Leg controller command placeholders for the whole robot (3x4 matrices)
+    Mat34<T> jointFeedForwardTorques;  // feed forward joint torques
+    Mat34<T> jointPositions;           // joint angle positions
+    Mat34<T> jointVelocities;          // joint angular velocities
+    Mat34<T> footFeedForwardForces;    // feedforward forces at the feet
+    Mat34<T> footPositions;            // cartesian foot positions
+    Mat34<T> footVelocities;           // cartesian foot velocities
+
 protected:
-//    float _delta_abad = 0.026977;
-    float _delta_abad = 0.0028977;
-//    float _delta_hip = 0.52602;
-    float _delta_hip = 0.62602;
-//    float _delta_knee = 2.0202;
-    float _delta_knee = 2.22841725;
+////    float _delta_abad = 0.026977;
+//    float _delta_abad = 0.106977;
+////    float _delta_hip = 0.52602;
+//    float _delta_hip = 0.62602;
+////    float _delta_knee = 2.0202;
+//    float _delta_knee = 1.4907074;
+////    float _delta_knee = 2.6907074;
+
+    // Create the cartesian P gain matrix
+    Mat3<float> kpMat;
+
+    // Create the cartesian D gain matrix
+    Mat3<float> kdMat;
 };
 
 #endif  // FSM_State_H

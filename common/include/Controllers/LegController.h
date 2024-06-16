@@ -17,74 +17,104 @@
 #include "Dynamics/Quadruped.h"
 #include "SimUtilities/SpineBoard.h"
 #include "SimUtilities/ti_boardcontrol.h"
-
+#include <fstream>
+#include <iostream>
+#include <string>
 /*!
  * Data sent from the control algorithm to the legs.
  */
-template <typename T>
+template<typename T>
 struct LegControllerCommand {
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  LegControllerCommand() { zero(); }
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  void zero();
+    LegControllerCommand() { zero(); }
 
-  Vec3<T> tauFeedForward, forceFeedForward, qDes, qdDes, pDes, vDes;
-  Mat3<T> kpCartesian, kdCartesian, kpJoint, kdJoint;
+    void zero();
+
+    Vec3<T> tauFeedForward, forceFeedForward, qDes, qdDes, pDes, vDes;
+    Mat3<T> kpCartesian, kdCartesian, kpJoint, kdJoint;
 };
 
 /*!
  * Data returned from the legs to the control code.
  */
-template <typename T>
+template<typename T>
 struct LegControllerData {
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  LegControllerData() { zero(); }
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  void setQuadruped(Quadruped<T>& quad) { quadruped = &quad; }
+    LegControllerData() { zero(); }
 
-  void zero();
+    void setQuadruped(Quadruped<T> &quad) { quadruped = &quad; }
 
-  Vec3<T> q, qd, p, v;
-  Mat3<T> J;
-  Vec3<T> tauEstimate;
-  Quadruped<T>* quadruped;
+    void zero();
+
+    Vec3<T> q, qd, p, v;
+    Mat3<T> J;
+    Vec3<T> tauEstimate;
+    Quadruped<T> *quadruped;
 };
 
 /*!
  * Controller for 4 legs of a quadruped.  Works for both Mini Cheetah and Cheetah 3
  */
-template <typename T>
+template<typename T>
 class LegController {
- public:
-  LegController(Quadruped<T>& quad) : _quadruped(quad) {
-    for (auto& data : datas) data.setQuadruped(_quadruped);
-  }
+public:
+    LegController(Quadruped<T> &quad) : _quadruped(quad) {
+        for (auto &data: datas) data.setQuadruped(_quadruped);
+        outputFile.open(filePath, std::ios::trunc);
+    }
 
-  void zeroCommand();
-  void edampCommand(RobotType robot, T gain);
-  void updateData(const SpiData* spiData);
-  void updateData(const TiBoardData* tiBoardData);
-  void updateCommand(SpiCommand* spiCommand);
-  void updateCommand(TiBoardCommand* tiBoardCommand);
-  void setEnabled(bool enabled) { _legsEnabled = enabled; };
-  void setLcm(leg_control_data_lcmt* data, leg_control_command_lcmt* command);
+    ~LegController(){
+        if (outputFile.is_open()) {
+            outputFile.close();
+        }
+    }
 
-  /*!
-   * Set the maximum torque.  This only works on cheetah 3!
-   */
-  void setMaxTorqueCheetah3(T tau) { _maxTorque = tau; }
+    void zeroCommand();
 
-  LegControllerCommand<T> commands[4];
-  LegControllerData<T> datas[4];
-  Quadruped<T>& _quadruped;
-  bool _legsEnabled = false;
-  T _maxTorque = 0;
-  bool _zeroEncoders = false;
-  u32 _calibrateEncoders = 0;
+    void edampCommand(RobotType robot, T gain);
+
+    void updateData(const SpiData *spiData);
+
+    void updateData(const TiBoardData *tiBoardData);
+
+    void updateCommand(SpiCommand *spiCommand);
+
+    void updateCommand(TiBoardCommand *tiBoardCommand);
+
+    void setEnabled(bool enabled) { _legsEnabled = enabled; };
+
+    void setLcm(leg_control_data_lcmt *data, leg_control_command_lcmt *command);
+
+    /****** 加入逆运动学结算 *****/
+    Vec3<T> inverseKinematics(Vec3<T> p, int leg);
+    /*!
+     * Set the maximum torque.  This only works on cheetah 3!
+     */
+    void setMaxTorqueCheetah3(T tau) { _maxTorque = tau; }
+
+    LegControllerCommand<T> commands[4];
+    LegControllerData<T> datas[4];
+    Quadruped<T> &_quadruped;
+    bool _legsEnabled = false;
+    T _maxTorque = 0;
+    bool _zeroEncoders = false;
+    u32 _calibrateEncoders = 0;
+    bool isLocomotion = false;
+    bool isPassive = false;
+    bool isRecoveryStand = false;
+    bool isFirstEnter = true;
+    unsigned int iter = 11;
+    int iter_debug = 0;
+    bool isZeroCmd = false;
+
+    std::ofstream outputFile;
+    std::string filePath = "/home/mebius/Leopard/output_inverseDyn_standup.txt";
 };
 
-template <typename T>
-void computeLegJacobianAndPosition(Quadruped<T>& quad, Vec3<T>& q, Mat3<T>* J,
-                                   Vec3<T>* p, int leg);
+template<typename T>
+void computeLegJacobianAndPosition(Quadruped<T> &quad, Vec3<T> &q, Mat3<T> *J,
+                                   Vec3<T> *p, int leg);
 
 #endif  // PROJECT_LEGCONTROLLER_H

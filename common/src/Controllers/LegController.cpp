@@ -94,6 +94,10 @@ void LegController<T>::updateData(const SpiData *spiData) {
         datas[leg].qd(1) = spiData->qd_hip[leg];
         datas[leg].qd(2) = spiData->qd_knee[leg];
 
+        datas[leg].tauEstimate[0] = spiData->tau_abad[leg];
+        datas[leg].tauEstimate[1] = spiData->tau_hip[leg];
+        datas[leg].tauEstimate[2] = spiData->tau_knee[leg];
+
         // J and p
         computeLegJacobianAndPosition<T>(_quadruped, datas[leg].q, &(datas[leg].J),
                                          &(datas[leg].p), leg);
@@ -104,6 +108,8 @@ void LegController<T>::updateData(const SpiData *spiData) {
 //        }
         // v
         datas[leg].v = datas[leg].J * datas[leg].qd;
+
+
     }
 }
 
@@ -136,15 +142,23 @@ void LegController<T>::updateData(const TiBoardData *tiBoardData) {
  */
 template<typename T>
 void LegController<T>::updateCommand(SpiCommand *spiCommand) {
+
+
+    if (iter > 99999) { iter = 1; }    // 防止溢出
+//    if (iter <= 10) {
+//        this->zeroCommand();
+//    }
+    if (isLocomotion && isFirstEnter) {   // 进入locomotion
+        iter = 0;
+        isFirstEnter = false;
+    }
+
     for (int leg = 0; leg < 4; leg++) {
         // tauFF
         Vec3<T> legTorque = commands[leg].tauFeedForward;
 
-//        printf("leg %d, tauFF: %f, %f, %f\n", leg, legTorque(0), legTorque(1), legTorque(2));
-
         // forceFF
         Vec3<T> footForce = commands[leg].forceFeedForward;
-//        printf("leg %d, forceFF: %f, %f, %f\n", leg, footForce(0), footForce(1), footForce(2));
 
         // cartesian PD
         footForce +=
@@ -152,15 +166,105 @@ void LegController<T>::updateCommand(SpiCommand *spiCommand) {
         footForce +=
                 commands[leg].kdCartesian * (commands[leg].vDes - datas[leg].v);
 
-//        printf("leg %d, forceFF after cartesian PD: %f, %f, %f\n", leg, footForce(0), footForce(1), footForce(2));
-
-        //print J matrx
-//        printf("J matrix for leg %d\n", leg);
-//        for (int i = 0; i < 3; i++) {
-//            printf("%f %f %f\n", datas[leg].J(i, 0), datas[leg].J(i, 1), datas[leg].J(i, 2));
-//        }
         // Torque
         legTorque += datas[leg].J.transpose() * footForce;
+
+        float coeff0 = 1.f;
+//        float coeff1 = 0.0009f / 0.568f;
+        float coeff1 = 1.f;
+//        float coeff2 = 0.0080f / 3.1317;
+        float coeff2 = 1.f;
+
+        legTorque(0) = legTorque(0) * coeff0;
+        legTorque(1) = legTorque(1) * coeff1;
+        legTorque(2) = legTorque(2) * coeff2;
+
+        if ((legTorque(2) > 1e-5f || legTorque(2) < -1e-5f)) {
+            if (outputFile.is_open()) {
+                iter++;
+                outputFile << "iter: " << iter << std::endl;
+
+                if (isZeroCmd) {
+                    outputFile << "[Warning] leg " << leg << " torque: " << legTorque(0) << ", "
+                               << legTorque(1) << ", " << legTorque(2) << std::endl;
+                } else {
+                    outputFile << "leg " << leg << " torque: " << legTorque(0) << ", "
+                               << legTorque(1) << ", " << legTorque(2) << std::endl;
+                }
+                outputFile << "leg:" << leg << " p: " << datas[leg].p(0) << ", "
+                           << datas[leg].p(1) << ", " << datas[leg].p(2) << std::endl;
+                outputFile << "leg:" << leg << " p_des: " << commands[leg].pDes(0) << ", "
+                           << commands[leg].pDes(1) << ", " << commands[leg].pDes(2) << std::endl;
+                outputFile << "leg:" << leg << " v: " << datas[leg].v(0) << ", "
+                           << datas[leg].v(1) << ", " << datas[leg].v(2) << std::endl;
+                outputFile << "leg:" << leg << " v_des: " << commands[leg].vDes(0) << ", "
+                           << commands[leg].vDes(1) << ", " << commands[leg].vDes(2) << std::endl;
+                outputFile << "J matrix for leg " << leg << std::endl;
+                for (int i = 0; i < 3; i++) {
+                    outputFile << datas[leg].J.transpose()(i, 0) << " "
+                               << datas[leg].J.transpose()(i, 1) << " "
+                               << datas[leg].J.transpose()(i, 2) << std::endl;
+                }
+                outputFile << "footForce: " << footForce(0) << ", "
+                           << footForce(1) << ", " << footForce(2) << std::endl;
+
+                outputFile << "leg:" << leg << " q: " << datas[leg].q(0) << ", "
+                           << datas[leg].q(1) << ", " << datas[leg].q(2) << std::endl;
+                outputFile << "leg:" << leg << " q_des: " << commands[leg].qDes(0) << ", "
+                           << commands[leg].qDes(1) << ", " << commands[leg].qDes(2) << std::endl;
+                outputFile << "leg:" << leg << " qd: " << datas[leg].qd(0) << ", "
+                           << datas[leg].qd(1) << ", " << datas[leg].qd(2) << std::endl;
+                outputFile << "leg:" << leg << " qd_des: " << commands[leg].qdDes(0) << ", "
+                           << commands[leg].qdDes(1) << ", " << commands[leg].qdDes(2) << std::endl;
+                // kp and kd
+                outputFile << "leg:" << leg << " kp_joint: " << commands[leg].kpJoint(0, 0) << ", "
+                           << commands[leg].kpJoint(1, 1) << ", " << commands[leg].kpJoint(2, 2) << std::endl;
+                outputFile << "leg:" << leg << " kd_joint: " << commands[leg].kdJoint(0, 0) << ", "
+                           << commands[leg].kdJoint(1, 1) << ", " << commands[leg].kdJoint(2, 2) << std::endl;
+                outputFile << std::endl;
+            }
+        } else {
+            if (isPassive && outputFile.is_open() && iter <= 20000){
+                iter++;
+                outputFile << "iter: " << iter << std::endl;
+                // output all the q qd parameters
+                outputFile << "leg:" << leg << " p: " << datas[leg].p(0) << ", "
+                           << datas[leg].p(1) << ", " << datas[leg].p(2) << std::endl;
+                outputFile << "leg:" << leg << " p_des: " << commands[leg].pDes(0) << ", "
+                           << commands[leg].pDes(1) << ", " << commands[leg].pDes(2) << std::endl;
+                outputFile << "leg:" << leg << " q: " << datas[leg].q(0) << ", "
+                           << datas[leg].q(1) << ", " << datas[leg].q(2) << std::endl;
+                outputFile << "leg:" << leg << " q_des: " << commands[leg].qDes(0) << ", "
+                           << commands[leg].qDes(1) << ", " << commands[leg].qDes(2) << std::endl;
+                outputFile << "leg:" << leg << " qd: " << datas[leg].qd(0) << ", "
+                           << datas[leg].qd(1) << ", " << datas[leg].qd(2) << std::endl;
+                outputFile << "leg:" << leg << " qd_des: " << commands[leg].qdDes(0) << ", "
+                           << commands[leg].qdDes(1) << ", " << commands[leg].qdDes(2) << std::endl;
+                // kp and kd
+                outputFile << "leg:" << leg << " kp_joint: " << commands[leg].kpJoint(0, 0) << ", "
+                           << commands[leg].kpJoint(1, 1) << ", " << commands[leg].kpJoint(2, 2) << std::endl;
+                outputFile << "leg:" << leg << " kd_joint: " << commands[leg].kdJoint(0, 0) << ", "
+                           << commands[leg].kdJoint(1, 1) << ", " << commands[leg].kdJoint(2, 2) << std::endl;
+                outputFile << std::endl;
+            }
+        }
+        // 限幅
+        if (legTorque(0) < -9.5f || legTorque(0) > 9.5f ||
+            legTorque(1) < -4.5f || legTorque(1) > 4.5f ||
+            legTorque(2) < -17.5f || legTorque(2) > 17.5f) {
+            isZeroCmd = true;
+        }
+        if (isZeroCmd) {
+            legTorque(0) = 0.f;
+            legTorque(1) = 0.f;
+            legTorque(2) = 0.f;
+            commands[leg].zero();
+        }
+//
+//        legTorque(0) = 0.f;
+//        legTorque(1) = 0.f;
+//        legTorque(2) = 0.f;
+//        zeroCommand();
 
         // set command:
         spiCommand->tau_abad_ff[leg] = legTorque(0);
@@ -185,17 +289,66 @@ void LegController<T>::updateCommand(SpiCommand *spiCommand) {
         spiCommand->qd_des_hip[leg] = commands[leg].qdDes(1);
         spiCommand->qd_des_knee[leg] = commands[leg].qdDes(2);
 
-        // estimate torque
-        datas[leg].tauEstimate =
-                legTorque +
-                commands[leg].kpJoint * (commands[leg].qDes - datas[leg].q) +
-                commands[leg].kdJoint * (commands[leg].qdDes - datas[leg].qd);
-
-        // print tauEstimate
-//        printf("leg %d, tauEstimate: %f, %f, %f\n", leg, datas[leg].tauEstimate(0), datas[leg].tauEstimate(1), datas[leg].tauEstimate(2));
-
         spiCommand->flags[leg] = _legsEnabled ? 1 : 0;
     }
+
+
+//    } else {
+//        // print torque
+//        for (int leg = 0; leg < 4; leg++) {
+//            // tauFF
+//            Vec3<T> legTorque = commands[leg].tauFeedForward;
+//
+////        printf("leg %d, tauFF: %f, %f, %f\n", leg, legTorque(0), legTorque(1), legTorque(2));
+//
+//            // forceFF
+//            Vec3<T> footForce = commands[leg].forceFeedForward;
+////        printf("leg %d, forceFF: %f, %f, %f\n", leg, footForce(0), footForce(1), footForce(2));
+//
+//            // cartesian PD
+//            footForce +=
+//                    commands[leg].kpCartesian * (commands[leg].pDes - datas[leg].p);
+//            footForce +=
+//                    commands[leg].kdCartesian * (commands[leg].vDes - datas[leg].v);
+////        printf("leg %d, forceFF while cartesian D: %f, %f, %f\n", leg,
+////               (commands[leg].kdCartesian * (commands[leg].vDes - datas[leg].v))[0],
+////                  (commands[leg].kdCartesian * (commands[leg].vDes - datas[leg].v))[1],
+////                    (commands[leg].kdCartesian * (commands[leg].vDes - datas[leg].v))[2]);
+////        printf("leg %d, forceFF after cartesian PD: %f, %f, %f\n", leg, footForce(0), footForce(1), footForce(2));
+//
+//            //print J matrx
+//
+//            // Torque
+//            legTorque += datas[leg].J.transpose() * footForce;
+//
+//            // restrict amplitude of legTorque
+//            float coeff0 = 0.0049f / 1.392f;
+//            float coeff1 = 0.0009f / 0.568f;
+////        float coeff2 = 0.0080f / 3.1317;
+//            float coeff2 = 0.05f;
+//
+//            legTorque(0) = legTorque(0) * coeff0;
+//            legTorque(1) = legTorque(1) * coeff1;
+//            legTorque(2) = legTorque(2) * coeff2;
+//
+//
+//            if ((legTorque(2) > 1e-5f || legTorque(2) < -1e-5f) && iter <= 400) {
+//                printf("leg %d torque: %f, %f, %f\n", leg, legTorque(0), legTorque(1), legTorque(2));
+//            }
+//            if (leg == 0 && (legTorque(2) > 1e-5f || legTorque(2) < -1e-5f) && iter <= 400) {
+//                printf("iter: %d\n", iter);
+//                printf("tauFeedForward: %f, %f, %f\n", commands[leg].tauFeedForward(0), commands[leg].tauFeedForward(1),
+//                       commands[leg].tauFeedForward(2));
+//                printf("footForce: %f, %f, %f\n", footForce(0), footForce(1), footForce(2));
+//                printf("J matrix for leg %d\n", leg);
+//                for (int i = 0; i < 3; i++) {
+//                    printf("%f %f %f\n", datas[leg].J.transpose()(i, 0), datas[leg].J.transpose()(i, 1),
+//                           datas[leg].J.transpose()(i, 2));
+//                }
+//                printf("\n");
+//            }
+//        }
+//    }
 }
 
 constexpr float CHEETAH_3_ZERO_OFFSET[4][3] = {{1.f, 4.f, 7.f},
@@ -267,6 +420,57 @@ void LegController<T>::setLcm(leg_control_data_lcmt *lcmData, leg_control_comman
             lcmCommand->kd_joint[idx] = commands[leg].kdJoint(axis, axis);
         }
     }
+}
+
+
+template<typename T>
+Vec3<T> LegController<T>::inverseKinematics(Vec3<T> p, int leg) {
+    (void) leg;
+
+    T x = std::abs(p(0));
+    T y = std::abs(p(1));
+    T z = std::abs(p(2));
+
+    T h = _quadruped._abadLinkLength;
+    T hu = _quadruped._hipLinkLength;
+    T hl = _quadruped._kneeLinkLength;
+
+    T dyz = std::sqrt(y * y + z * z);
+    T lyz = std::sqrt(dyz * dyz - h * h);
+
+    T gamma_yz = -std::atan2(y, z);
+    if (gamma_yz < -M_PI / 2) {
+        gamma_yz += M_PI;
+    } else if (gamma_yz > M_PI / 2) {
+        gamma_yz -= M_PI;
+    }
+    T gamma_h_offset = -std::atan2(h, lyz);
+    if (gamma_h_offset < -M_PI / 2) {
+        gamma_h_offset += M_PI;
+    } else if (gamma_h_offset > M_PI / 2) {
+        gamma_h_offset -= M_PI;
+    }
+    T gamma = gamma_yz - gamma_h_offset;
+
+    T lxzp = std::sqrt(lyz * lyz + x * x);
+    T n = (lxzp * lxzp - hl * hl - hu * hu) / (2 * hu);
+    T beta = -std::acos(n / hl);
+
+    T alfa_xzp = -std::atan2(x, lyz);
+    if (alfa_xzp < -M_PI / 2) {
+        alfa_xzp += M_PI;
+    } else if (alfa_xzp > M_PI / 2) {
+        alfa_xzp -= M_PI;
+    }
+    T alfa_off = std::acos((hu + n) / lxzp);
+    T alfa = alfa_xzp + alfa_off;
+
+    Vec3<T> output;
+    output(0) = -gamma * _quadruped.getSideSign(leg);
+    output(1) = -alfa;
+    output(2) = -beta;
+
+    return output;
 }
 
 template

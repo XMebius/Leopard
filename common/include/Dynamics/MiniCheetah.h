@@ -20,15 +20,21 @@ template <typename T>
 Quadruped<T> buildMiniCheetah() {
   Quadruped<T> cheetah;
   cheetah._robotType = RobotType::MINI_CHEETAH;
+//  cheetah._robotType = RobotType::LEOPARD;
 
-  cheetah._bodyMass = 3.3;
+//  cheetah._bodyMass = 3.3;
+  cheetah._bodyMass = 5.3;
   cheetah._bodyLength = 0.19 * 2;
   cheetah._bodyWidth = 0.049 * 2;
   cheetah._bodyHeight = 0.05 * 2;
-  cheetah._abadGearRatio = 6;
-  cheetah._hipGearRatio = 6;
-  cheetah._kneeGearRatio = 9.33;
-  cheetah._abadLinkLength = 0.062;
+  cheetah._abadGearRatio = 6.33;
+//  cheetah._abadGearRatio = 6;
+  cheetah._hipGearRatio = 6.33;
+//  cheetah._hipGearRatio = 6;
+  cheetah._kneeGearRatio = 9.846;
+//  cheetah._kneeGearRatio = 9.33;
+//  cheetah._abadLinkLength = 0.062;
+  cheetah._abadLinkLength = 0.072;
   cheetah._hipLinkLength = 0.209;
   //cheetah._kneeLinkLength = 0.175;
   //cheetah._maxLegLength = 0.384;

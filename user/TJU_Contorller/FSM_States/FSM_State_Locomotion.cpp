@@ -21,7 +21,9 @@ FSM_State_Locomotion<T>::FSM_State_Locomotion(ControlFSMData<T> *_controlFSMData
 template<typename T>
 void FSM_State_Locomotion<T>::onEnter() {
     printf("[FSM_State_Locomotion] onEnter...\n");
-//    this->_data->_gaitScheduler->gaitData._nextGait = GaitType::TROT;
+    cMPC->initialize();
+    this->_data->_gaitScheduler->gaitData._nextGait = GaitType::TROT;
+//    printf("[FSM_State_Locomotion] after onEnter...\n");
 }
 
 /**
@@ -29,8 +31,8 @@ void FSM_State_Locomotion<T>::onEnter() {
  */
 template<typename T>
 void FSM_State_Locomotion<T>::run() {
+//    printf("[FSM_State_Locomotion] run...\n");
     cMPC->run<T>(*this->_data);
-
     Vec3<T> pDes_backup[4];
     Vec3<T> vDes_backup[4];
     Mat3<T> Kp_backup[4];

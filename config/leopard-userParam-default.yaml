@@ -5,7 +5,7 @@ cmpc_x_drag: 3
 cmpc_use_sparse: 0
 cmpc_bonus_swing: 0
 
-use_wbc: 1
+use_wbc: 0
 
 sit_down_height: 0.07       #机器人趴下时的高度
 stand_up_height: 0.31        #机器人站立时的高度
@@ -14,16 +14,13 @@ stand_up_time: 1.5        #机器人站起来的时间
 
 #Kp_stand: [ 0.6, 0.3, 0.6 ]      # stand_up 与 sit_down 的足底笛卡尔坐标系pd参数
 #Kd_stand: [ 0.001, 0.001, 0.001 ]
-Kp_stand             : [0.8, 0.6, 1.8]      # stand_up 与 sit_down 的足底笛卡尔坐标系pd参数
-Kd_stand             : [0.008, 0.003, 0.02]
-#Kp_stand             : [160, 120, 550]      # stand_up 与 sit_down 的足底笛卡尔坐标系pd参数
-#Kd_stand             : [3, 2, 5]
+Kp_stand             : [1.8, 2.0, 2.7]      # stand_up 与 sit_down 的足底笛卡尔坐标系pd参数
+Kd_stand             : [0.02, 0.020, 0.021]
 
 #Kd_joint: [ 1, 0.2, 0.2 ]
 #Kp_joint: [ 3, 3, 3 ]
-Kp_joint: [0.8, 0.6, 1.8]
-Kd_joint: [0.008, 0.003, 0.02]
-
+Kp_joint: [1, 0.2, 0.2]
+Kd_joint: [0, 0, 0]
 
 Kp_body: [ 100, 100, 100 ]
 Kd_body: [ 10, 10, 10 ]

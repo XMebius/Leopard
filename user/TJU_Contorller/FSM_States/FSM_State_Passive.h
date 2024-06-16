@@ -18,6 +18,8 @@ public:
 private:
     std::vector<Vec3<T> > _ini_joint_pos;
     std::vector<Vec3<T> > _end_joint_pos;
+
+    int iter = 0;
 };
 
 #endif  // FSM_STATE_PASSIVE_H

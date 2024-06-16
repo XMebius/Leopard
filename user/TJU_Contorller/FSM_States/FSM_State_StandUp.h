@@ -6,24 +6,28 @@
 /**
  *
  */
-template <typename T>
+template<typename T>
 class FSM_State_StandUp : public FSM_State<T> {
- public:
-  FSM_State_StandUp(ControlFSMData<T>* _controlFSMData);
+public:
+    FSM_State_StandUp(ControlFSMData<T> *_controlFSMData);
 
-  // Behavior to be carried out when entering a state
-  void onEnter();
+    // Behavior to be carried out when entering a state
+    void onEnter();
 
-  // Run the normal behavior for the state
-  void run();
+    void _SetJPosInterPts(
+            const size_t &curr_iter, size_t max_iter, int leg,
+            const Vec3<T> &ini, const Vec3<T> &fin);
+    // Run the normal behavior for the state
+    void run();
 
-  bool isBusy();
+    bool isBusy();
 
- private:
-  // 迭代器，进入状态后迭代了多少个dt周期
-  int iter = 0;
-  std::vector< Vec3<T> > _ini_joint_pos;
-  std::vector< Vec3<T> > _end_joint_pos;
+private:
+    // 迭代器，进入状态后迭代了多少个dt周期
+    int iter = 0;
+    std::vector <Vec3<T>> _ini_foot_pos;
+    std::vector <Vec3<T>> _ini_joint_pos;
+    std::vector <Vec3<T>> _end_joint_pos;
 };
 
 #endif  // FSM_STATE_STANDUP_H

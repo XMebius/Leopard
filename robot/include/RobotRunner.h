@@ -84,6 +84,8 @@ class RobotRunner : public PeriodicTask {
 
   FloatingBaseModel<float> _model;
   u64 _iterations = 0;
+
+  bool startInitialize = false;
 };
 
 #endif  // PROJECT_ROBOTRUNNER_H

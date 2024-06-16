@@ -4,7 +4,6 @@
 
 #include "rt/rt_beitong.h"
 
-
 int gampad_fd;
 const char* gamepad_path = "/dev/input/event21";
 struct input_event beiTong_ev;
@@ -24,15 +23,18 @@ void read_gamepad(BeiTong &beiTong) {
             switch (beiTong_ev.code) {
                 case BTN_A:
                     beiTong.a = beiTong_ev.value;
+                    printf("a button pressed: %d\n", beiTong_ev.value);
                     break;
                 case BTN_B:
                     beiTong.b = beiTong_ev.value;
+                    printf("b button pressed: %d\n", beiTong_ev.value);
                     break;
                 case BTN_X:
                     beiTong.x = beiTong_ev.value;
                     break;
                 case BTN_Y:
                     beiTong.y = beiTong_ev.value;
+                    printf("y button pressed: %d\n", beiTong_ev.value);
                     break;
                 case BTN_START:
                     beiTong.start = beiTong_ev.value;
@@ -42,9 +44,11 @@ void read_gamepad(BeiTong &beiTong) {
                     break;
                 case BTN_TL:
                     beiTong.leftBumper = beiTong_ev.value;
+                    printf("left bumper: %d\n", beiTong_ev.value);
                     break;
                 case BTN_TR:
                     beiTong.rightBumper = beiTong_ev.value;
+                    printf("right bumper: %d\n", beiTong_ev.value);
                     break;
                 case BTN_TL2:
                     beiTong.leftTriggerButton = beiTong_ev.value;

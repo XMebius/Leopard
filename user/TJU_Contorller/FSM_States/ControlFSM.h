@@ -11,13 +11,13 @@
 
 // FSM States
 #include "../FSM_States/FSM_State.h"
-//#include "../FSM_States/FSM_State_BalanceStand.h"
 //#include "../FSM_States/FSM_State_Locomotion.h"
 #include "../FSM_States/FSM_State_Passive.h"
-//#include "../FSM_States/FSM_State_SitDown.h"
 #include "../FSM_States/FSM_State_StandUp.h"
 #include "../FSM_States/FSM_State_SitDown.h"
 #include "../FSM_States/FSM_State_Locomotion.h"
+#include "../FSM_States/FSM_State_RecoveryStand.h"
+#include "../FSM_States/FSM_State_BalanceStand.h"
 
 /**
  *
@@ -29,8 +29,8 @@ struct FSM_StatesList {
     FSM_State_StandUp<T> *standUp;
     FSM_State_SitDown<T> *sitDown;
     FSM_State_Locomotion<T> *locomotion;
-//  FSM_State_SitDown<T>* sitDown;
-//  FSM_State_BalanceStand<T>* balanceStand;
+    FSM_State_RecoveryStand<T> *recoveryStand;
+    FSM_State_BalanceStand<T> *balanceStand;
 //  FSM_State_Locomotion<T>* locomotion;
 };
 
@@ -43,6 +43,7 @@ public:
     ControlFSM(Quadruped<T> *_quadruped,
                StateEstimatorContainer<T> *_stateEstimator,
                LegController<T> *_legController,
+               GaitScheduler<T>* _gaitScheduler,
                DesiredStateCommand<T> *_desiredStateCommand,
                RobotControlParameters *controlParameters,
                VisualizationData *visualizationData,
@@ -75,6 +76,9 @@ public:
 private:
     int printIter = 0;
     int printNum = 10000;
+    bool isPreSafe = true;
+    bool isPostSafe = true;
+    bool eStop = true;
 };
 
 template

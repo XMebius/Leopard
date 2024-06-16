@@ -12,6 +12,7 @@
 #include "Controllers/OrientationEstimator.h"
 #include "Dynamics/Cheetah3.h"
 #include "Dynamics/MiniCheetah.h"
+#include "Dynamics/Leopard.h"
 #include "Utilities/Utilities_print.h"
 #include "ParamHandler.hpp"
 #include "Utilities/Timer.h"
@@ -35,8 +36,11 @@ void RobotRunner::init() {
     printf("[RobotRunner] initialize\n");
 
     // Build the appropriate Quadruped object
-    if (robotType == RobotType::MINI_CHEETAH || robotType == RobotType::LEOPARD) {
+    if (robotType == RobotType::MINI_CHEETAH) {
         _quadruped = buildMiniCheetah<float>();
+    } else if (robotType == RobotType::LEOPARD) {
+        _quadruped = buildLeopard<float>();
+//        printf("_quadraped._robotType: %d\n", _quadruped._robotType);
     } else {
         _quadruped = buildCheetah3<float>();
     }
@@ -102,39 +106,43 @@ void RobotRunner::run() {
     } else {
         _legController->setEnabled(true);
 
-        if ((rc_control.mode == 0) && controlParameters->use_rc) {
+        if (beiTong->leftBumper) {
+            startInitialize = true;
+        }
+        if (!startInitialize) {
             if (count_ini % 1000 == 0) printf("ESTOP!\n");
             for (int leg = 0; leg < 4; leg++) {
                 _legController->commands[leg].zero();
             }
             _robot_ctrl->Estop();
-        } // Controller
-        if (!_jpos_initializer->IsInitialized(_legController)) {
-            Mat3<float> kpMat;
-            Mat3<float> kdMat;
-            // Update the jpos feedback gains
-            if (robotType == RobotType::MINI_CHEETAH || robotType == RobotType::LEOPARD ) {
-                kpMat << 5, 0, 0, 0, 5, 0, 0, 0, 5;
-                kdMat << 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1;
-            } else if (robotType == RobotType::CHEETAH_3) {
-                kpMat << 50, 0, 0, 0, 50, 0, 0, 0, 50;
-                kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-            } else {
-                assert(false);
-            }
-
-            for (int leg = 0; leg < 4; leg++) {
-                _legController->commands[leg].kpJoint = kpMat;
-                _legController->commands[leg].kdJoint = kdMat;
-            }
         } else {
-            // Run Control
-            _robot_ctrl->runController();
-            cheetahMainVisualization->p = _stateEstimate.position;
+            if (!_jpos_initializer->IsInitialized(_legController)) {
+                Mat3<float> kpMat;
+                Mat3<float> kdMat;
+                // Update the jpos feedback gains
+                if (robotType == RobotType::MINI_CHEETAH || robotType == RobotType::LEOPARD) {
+                    kpMat << 0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8;
+                    kdMat << 0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01;
+                } else if (robotType == RobotType::CHEETAH_3) {
+                    kpMat << 50, 0, 0, 0, 50, 0, 0, 0, 50;
+                    kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+                } else {
+                    assert(false);
+                }
 
-            // Update Visualization
-            _robot_ctrl->updateVisualization();
-            cheetahMainVisualization->p = _stateEstimate.position;
+                for (int leg = 0; leg < 4; leg++) {
+                    _legController->commands[leg].kpJoint = kpMat;
+                    _legController->commands[leg].kdJoint = kdMat;
+                }
+            } else {
+                // Run Control
+                _robot_ctrl->runController();
+                cheetahMainVisualization->p = _stateEstimate.position;
+
+                // Update Visualization
+                _robot_ctrl->updateVisualization();
+                cheetahMainVisualization->p = _stateEstimate.position;
+            }
         }
     }
 
@@ -167,7 +175,6 @@ void RobotRunner::setupStep() {
     }
 
     // Setup the leg controller for a new iteration
-    // TODO: ban ZeroCommand for now.
     _legController->zeroCommand();
     _legController->setEnabled(true);
     _legController->setMaxTorqueCheetah3(208.5);
@@ -207,8 +214,6 @@ void RobotRunner::finalizeStep() {
     }
 
     // output this leg_contorl_command to a file (_legController->commands)
-
-
     _legController->setLcm(&leg_control_data_lcm, &leg_control_command_lcm);
     _stateEstimate.setLcm(state_estimator_lcm);
     _lcm.publish("leg_control_command", &leg_control_command_lcm);

@@ -26,6 +26,7 @@ template<typename T>
 ControlFSM<T>::ControlFSM(Quadruped<T> *_quadruped,
                           StateEstimatorContainer<T> *_stateEstimator,
                           LegController<T> *_legController,
+                          GaitScheduler<T>* _gaitScheduler,
                           DesiredStateCommand<T> *_desiredStateCommand,
                           RobotControlParameters *controlParameters,
                           VisualizationData *visualizationData,
@@ -34,6 +35,7 @@ ControlFSM<T>::ControlFSM(Quadruped<T> *_quadruped,
     data._quadruped = _quadruped;
     data._stateEstimator = _stateEstimator;
     data._legController = _legController;
+    data._gaitScheduler = _gaitScheduler;
     data._desiredStateCommand = _desiredStateCommand;
     data.controlParameters = controlParameters;
     data.visualizationData = visualizationData;
@@ -46,8 +48,8 @@ ControlFSM<T>::ControlFSM(Quadruped<T> *_quadruped,
     statesList.standUp = new FSM_State_StandUp<T>(&data);
     statesList.sitDown = new FSM_State_SitDown<T>(&data);
     statesList.locomotion = new FSM_State_Locomotion<T>(&data);
-//    statesList.balanceStand = new FSM_State_BalanceStand<T>(&data);
-//    statesList.locomotion = new FSM_State_Locomotion<T>(&data);
+    statesList.recoveryStand = new FSM_State_RecoveryStand<T>(&data);
+    statesList.balanceStand = new FSM_State_BalanceStand<T>(&data);
 
     safetyChecker = new SafetyChecker<T>(&data);
 
@@ -75,38 +77,68 @@ void ControlFSM<T>::initialize() {
  */
 template<typename T>
 void ControlFSM<T>::runFSM() {
-    if (nextState == currentState) {
+    isPreSafe = safetyPreCheck();
+    if (nextState == currentState && eStop) {
         switch (currentState->stateName) {
             case FSM_StateName::PASSIVE:
-                if (data.controlParameters->control_mode == K_STAND_UP ||
-                    data._desiredStateCommand->beiTong->leftBumper) { // LB pressed
+                /*if (data._desiredStateCommand->beiTong->leftBumper) { // LB pressed
+//                    nextState = statesList.standUp;
+                } else*/
+                if (data._desiredStateCommand->beiTong->b) {
+                    nextState = statesList.passive;
+                } else if (data._desiredStateCommand->beiTong->rightBumper) {
+                    nextState = statesList.recoveryStand;
+                }else if (data._desiredStateCommand->beiTong->rightTriggerButton) {
                     nextState = statesList.standUp;
                 }
                 break;
             case FSM_StateName::STAND_UP:
                 if (currentState->isBusy()) break;
-                if (data.controlParameters->control_mode == K_LOCOMOTION ||
-                    data._desiredStateCommand->beiTong->x) { // X pressed
-                     nextState = statesList.locomotion;
-                } else if (data.controlParameters->control_mode == K_SIT_DOWN ||
-                           data._desiredStateCommand->beiTong->rightBumper) { // RB pressed
-                    nextState = statesList.sitDown;
+                if (data._desiredStateCommand->beiTong->b) {
+                    nextState = statesList.passive;
                 }
                 break;
-            case FSM_StateName::SIT_DOWN:
+            /*case FSM_StateName::SIT_DOWN:
                 if (currentState->isBusy()) break;  // wait until the action is done
                 nextState = statesList.passive;
+                break;*/
+            case FSM_StateName::RECOVERY_STAND:
+                this->data._legController->isRecoveryStand = true;
+                if (data._desiredStateCommand->beiTong->b) {
+                    nextState = statesList.passive;
+                } else if (data._desiredStateCommand->beiTong->y) {
+                    nextState = statesList.balanceStand;
+                } else if(data._desiredStateCommand->beiTong->x) {
+                    nextState = statesList.locomotion;
+                }
+                break;
+            case FSM_StateName::BALANCE_STAND:
+                this->data._legController->isRecoveryStand = false;
+                if (data._desiredStateCommand->beiTong->b) {
+                    nextState = statesList.passive;
+                } else if (data._desiredStateCommand->beiTong->x) {
+                    nextState = statesList.locomotion;
+                }
                 break;
             case FSM_StateName::LOCOMOTION:
+                this->data._legController->isLocomotion = true;
                 if (currentState->isBusy()) break;
-                if (data.controlParameters->control_mode == K_STAND_UP ||
-                    data._desiredStateCommand->beiTong->leftBumper) { // RB pressed
-                    nextState = statesList.standUp;
+                if (data._desiredStateCommand->beiTong->b) { // LB pressed
+                    nextState = statesList.passive;
                 }
                 break;
             default:
                 break;
         }
+    }
+
+    // 安全检查
+    if (!isPreSafe || !isPostSafe) { // 任何一个检查不通过,则进入passive状态
+        printf("not safe, enter passive state\n");
+        nextState = statesList.passive;
+        eStop = false;
+    } else {
+        eStop = true;
     }
 
     //状态切换
@@ -117,10 +149,10 @@ void ControlFSM<T>::runFSM() {
         }
     }
 
-    safetyPreCheck();
     currentState->run();
     printInfo();
-    safetyPostCheck();
+
+    isPostSafe = safetyPostCheck();
 }
 
 /**
@@ -135,7 +167,8 @@ bool ControlFSM<T>::safetyPreCheck() {
     // Check for safe orientation if the current state requires it
     if (currentState->checkSafeOrientation) {
         if (!safetyChecker->checkSafeOrientation()) {
-            std::cout << "broken: Orientation Safety Ceck FAIL" << std::endl;
+            std::cout << "broken: Orientation Safety Check FAIL" << std::endl;
+            return false;
         }
     }
     return true;
