@@ -26,7 +26,7 @@ template<typename T>
 ControlFSM<T>::ControlFSM(Quadruped<T> *_quadruped,
                           StateEstimatorContainer<T> *_stateEstimator,
                           LegController<T> *_legController,
-                          GaitScheduler<T>* _gaitScheduler,
+                          GaitScheduler<T> *_gaitScheduler,
                           DesiredStateCommand<T> *_desiredStateCommand,
                           RobotControlParameters *controlParameters,
                           VisualizationData *visualizationData,
@@ -84,11 +84,12 @@ void ControlFSM<T>::runFSM() {
                 /*if (data._desiredStateCommand->beiTong->leftBumper) { // LB pressed
 //                    nextState = statesList.standUp;
                 } else*/
+                this->data._legController->isPassive = true;
                 if (data._desiredStateCommand->beiTong->b) {
                     nextState = statesList.passive;
                 } else if (data._desiredStateCommand->beiTong->rightBumper) {
                     nextState = statesList.recoveryStand;
-                }else if (data._desiredStateCommand->beiTong->rightTriggerButton) {
+                } else if (data._desiredStateCommand->beiTong->rightTriggerButton) {
                     nextState = statesList.standUp;
                 }
                 break;
@@ -96,19 +97,21 @@ void ControlFSM<T>::runFSM() {
                 if (currentState->isBusy()) break;
                 if (data._desiredStateCommand->beiTong->b) {
                     nextState = statesList.passive;
+                } else if (data._desiredStateCommand->beiTong->x) {
+                    nextState = statesList.locomotion;
                 }
                 break;
-            /*case FSM_StateName::SIT_DOWN:
-                if (currentState->isBusy()) break;  // wait until the action is done
-                nextState = statesList.passive;
-                break;*/
+                /*case FSM_StateName::SIT_DOWN:
+                    if (currentState->isBusy()) break;  // wait until the action is done
+                    nextState = statesList.passive;
+                    break;*/
             case FSM_StateName::RECOVERY_STAND:
                 this->data._legController->isRecoveryStand = true;
                 if (data._desiredStateCommand->beiTong->b) {
                     nextState = statesList.passive;
                 } else if (data._desiredStateCommand->beiTong->y) {
                     nextState = statesList.balanceStand;
-                } else if(data._desiredStateCommand->beiTong->x) {
+                } else if (data._desiredStateCommand->beiTong->x) {
                     nextState = statesList.locomotion;
                 }
                 break;
@@ -125,6 +128,8 @@ void ControlFSM<T>::runFSM() {
                 if (currentState->isBusy()) break;
                 if (data._desiredStateCommand->beiTong->b) { // LB pressed
                     nextState = statesList.passive;
+                } else if (data._desiredStateCommand->beiTong->rightTriggerButton) {
+                    nextState = statesList.standUp;
                 }
                 break;
             default:

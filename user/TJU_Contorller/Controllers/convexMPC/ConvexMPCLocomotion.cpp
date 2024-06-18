@@ -392,8 +392,18 @@ void ConvexMPCLocomotion::run(ControlFSMData<float> &data) {
                 // Update leg control command regardless of the usage of WBIC
                 data._legController->commands[foot].pDes = pDesLeg;
                 data._legController->commands[foot].vDes = vDesLeg;
-                data._legController->commands[foot].kpCartesian = Kp;
-                data._legController->commands[foot].kdCartesian = Kd;
+//                data._legController->commands[foot].kpCartesian = Kp;
+//                data._legController->commands[foot].kdCartesian = Kd;
+                data._legController->commands[foot].qDes = data._legController->inverseKinematics(pDesLeg, foot);
+                data._legController->commands[foot].kpJoint = Mat3<float>::Identity() * 2.7;
+                data._legController->commands[foot].kdJoint = Mat3<float>::Identity() * 0.025;
+                // print all the commands
+                printf("swing Foot %d: pDes: %f %f %f, vDes: %f %f %f, qDes: %f %f %f\n", foot,
+                       pDesLeg[0], pDesLeg[1], pDesLeg[2],
+                       vDesLeg[0], vDesLeg[1], vDesLeg[2],
+                       data._legController->commands[foot].qDes[0],
+                       data._legController->commands[foot].qDes[1],
+                       data._legController->commands[foot].qDes[2]);
             }
         } else // foot is in stance
         {
@@ -416,12 +426,20 @@ void ConvexMPCLocomotion::run(ControlFSMData<float> &data) {
             if (!data.userParameters->use_wbc) {
                 data._legController->commands[foot].pDes = pDesLeg;
                 data._legController->commands[foot].vDes = vDesLeg;
-                data._legController->commands[foot].kpCartesian = Kp_stance;
-                data._legController->commands[foot].kdCartesian = Kd_stance;
-
-                data._legController->commands[foot].forceFeedForward = f_ff[foot];
-                data._legController->commands[foot].kdJoint = Mat3<float>::Identity() * 0.2;
-
+//                data._legController->commands[foot].kpCartesian = Kp_stance;
+//                data._legController->commands[foot].kdCartesian = Kd_stance;
+//
+//                data._legController->commands[foot].forceFeedForward = f_ff[foot];
+//                data._legController->commands[foot].kdJoint = Mat3<float>::Identity() * 0.2;
+                data._legController->commands[foot].qDes = data._legController->inverseKinematics(pDesLeg, foot);
+                data._legController->commands[foot].kpJoint = Mat3<float>::Identity() * 2.7;
+                data._legController->commands[foot].kdJoint = Mat3<float>::Identity() * 0.025;
+                printf("stance Foot %d: pDes: %f %f %f, vDes: %f %f %f, qDes: %f %f %f\n", foot,
+                       pDesLeg[0], pDesLeg[1], pDesLeg[2],
+                       vDesLeg[0], vDesLeg[1], vDesLeg[2],
+                       data._legController->commands[foot].qDes[0],
+                       data._legController->commands[foot].qDes[1],
+                       data._legController->commands[foot].qDes[2]);
                 //      footSwingTrajectories[foot]->updateFF(hw_i->leg_controller->leg_datas[foot].q,
                 //                                          hw_i->leg_controller->leg_datas[foot].qd, 0); todo removed
                 // hw_i->leg_controller->leg_commands[foot].tau_ff += 0*footSwingController[foot]->getTauFF();

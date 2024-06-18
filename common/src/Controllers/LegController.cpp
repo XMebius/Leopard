@@ -224,7 +224,7 @@ void LegController<T>::updateCommand(SpiCommand *spiCommand) {
                 outputFile << std::endl;
             }
         } else {
-            if (isPassive && outputFile.is_open() && iter <= 20000){
+            if (isLocomotion && outputFile.is_open() && iter <= 20000){
                 iter++;
                 outputFile << "iter: " << iter << std::endl;
                 // output all the q qd parameters
@@ -232,6 +232,10 @@ void LegController<T>::updateCommand(SpiCommand *spiCommand) {
                            << datas[leg].p(1) << ", " << datas[leg].p(2) << std::endl;
                 outputFile << "leg:" << leg << " p_des: " << commands[leg].pDes(0) << ", "
                            << commands[leg].pDes(1) << ", " << commands[leg].pDes(2) << std::endl;
+                outputFile << "leg:" << leg << " v: " << datas[leg].v(0) << ", "
+                           << datas[leg].v(1) << ", " << datas[leg].v(2) << std::endl;
+                outputFile << "leg:" << leg << " v_des: " << commands[leg].vDes(0) << ", "
+                           << commands[leg].vDes(1) << ", " << commands[leg].vDes(2) << std::endl;
                 outputFile << "leg:" << leg << " q: " << datas[leg].q(0) << ", "
                            << datas[leg].q(1) << ", " << datas[leg].q(2) << std::endl;
                 outputFile << "leg:" << leg << " q_des: " << commands[leg].qDes(0) << ", "
@@ -240,11 +244,21 @@ void LegController<T>::updateCommand(SpiCommand *spiCommand) {
                            << datas[leg].qd(1) << ", " << datas[leg].qd(2) << std::endl;
                 outputFile << "leg:" << leg << " qd_des: " << commands[leg].qdDes(0) << ", "
                            << commands[leg].qdDes(1) << ", " << commands[leg].qdDes(2) << std::endl;
+                outputFile << "J matrix for leg " << leg << std::endl;
+                for (int i = 0; i < 3; i++) {
+                    outputFile << datas[leg].J.transpose()(i, 0) << " "
+                               << datas[leg].J.transpose()(i, 1) << " "
+                               << datas[leg].J.transpose()(i, 2) << std::endl;
+                }
                 // kp and kd
                 outputFile << "leg:" << leg << " kp_joint: " << commands[leg].kpJoint(0, 0) << ", "
                            << commands[leg].kpJoint(1, 1) << ", " << commands[leg].kpJoint(2, 2) << std::endl;
                 outputFile << "leg:" << leg << " kd_joint: " << commands[leg].kdJoint(0, 0) << ", "
                            << commands[leg].kdJoint(1, 1) << ", " << commands[leg].kdJoint(2, 2) << std::endl;
+
+                // output T
+                outputFile << "leg" << leg << " torque estimated: " << datas[leg].tauEstimate[0] << ", "
+                            << datas[leg].tauEstimate[1] << ", " << datas[leg].tauEstimate[2] << std::endl;
                 outputFile << std::endl;
             }
         }
