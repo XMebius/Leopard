@@ -450,7 +450,12 @@ Vec3<T> LegController<T>::inverseKinematics(Vec3<T> p, int leg) {
     T hl = _quadruped._kneeLinkLength;
 
     T dyz = std::sqrt(y * y + z * z);
+    if (dyz < h) {
+        std::cout << "dyz:" << dyz << " h:" << h << std::endl;
+        dyz = h + (h - dyz);
+    }
     T lyz = std::sqrt(dyz * dyz - h * h);
+
 
     T gamma_yz = -std::atan2(y, z);
     if (gamma_yz < -M_PI / 2) {
@@ -468,6 +473,9 @@ Vec3<T> LegController<T>::inverseKinematics(Vec3<T> p, int leg) {
 
     T lxzp = std::sqrt(lyz * lyz + x * x);
     T n = (lxzp * lxzp - hl * hl - hu * hu) / (2 * hu);
+    if (n / hl < -1 || n / hl > 1) {
+        n = hl;
+    }
     T beta = -std::acos(n / hl);
 
     T alfa_xzp = -std::atan2(x, lyz);
@@ -475,6 +483,9 @@ Vec3<T> LegController<T>::inverseKinematics(Vec3<T> p, int leg) {
         alfa_xzp += M_PI;
     } else if (alfa_xzp > M_PI / 2) {
         alfa_xzp -= M_PI;
+    }
+    if ((hu + n) / lxzp < -1 || (hu + n) / lxzp > 1) {
+        lxzp = hu + n;
     }
     T alfa_off = std::acos((hu + n) / lxzp);
     T alfa = alfa_xzp + alfa_off;

@@ -20,10 +20,10 @@ FSM_State_RecoveryStand<T>::FSM_State_RecoveryStand(ControlFSMData<T> *_controlF
     fold_jpos[3] << 0.0f, -1.4f, 2.7f;
 
     // Stand Up
-    stand_jpos[0] << 0.f, -.8f, 1.6f;
-    stand_jpos[1] << 0.f, -.8f, 1.6f;
-    stand_jpos[2] << 0.f, -.8f, 1.6f;
-    stand_jpos[3] << 0.f, -.8f, 1.6f;
+    stand_jpos[0] << 0.f, -.7f, 1.5f;
+    stand_jpos[1] << 0.f, -.7f, 1.5f;
+    stand_jpos[2] << 0.f, -.65f, 1.45f;
+    stand_jpos[3] << 0.f, -.65f, 1.45f;
 
     // Rolling
     rolling_jpos[0] << 1.5f, -1.6f, 2.77f;
@@ -146,9 +146,24 @@ void FSM_State_RecoveryStand<T>::_StandUp(const int &curr_iter) {
                body_height, _UpsideDown());
 
     } else {  // 无问题，继续站立
+
+        int curr_iter_backup = curr_iter;
+        if (curr_iter >= standup_ramp_iter)
+            curr_iter_backup = standup_ramp_iter;
+
         for (size_t leg(0); leg < 4; ++leg) {
-            _SetJPosInterPts(curr_iter, standup_ramp_iter,
-                             leg, initial_jpos[leg], stand_jpos[leg]);
+            this->_data->_legController->commands[leg].qDes =
+                    Interpolate::cubicBezier<Vec3<T>>(initial_jpos[leg],
+                                                      stand_jpos[leg],
+                                                      curr_iter_backup * 1. / standup_ramp_iter * 1.);
+
+            this->_data->_legController->commands[leg].qdDes =
+                    Interpolate::cubicBezierFirstDerivative<Vec3<T>>(initial_jpos[leg],
+                                                                     stand_jpos[leg],
+                                                                     curr_iter_backup * 1. / standup_ramp_iter * 1.);
+
+            this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.8, 1.8, 1.8).asDiagonal();
+            this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.02, 0.02, 0.02).asDiagonal();
         }
     }
     Vec4<T> se_contactState(0.5, 0.5, 0.5, 0.5);

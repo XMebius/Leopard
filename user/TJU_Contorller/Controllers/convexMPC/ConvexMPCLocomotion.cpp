@@ -395,8 +395,9 @@ void ConvexMPCLocomotion::run(ControlFSMData<float> &data) {
 //                data._legController->commands[foot].kpCartesian = Kp;
 //                data._legController->commands[foot].kdCartesian = Kd;
                 data._legController->commands[foot].qDes = data._legController->inverseKinematics(pDesLeg, foot);
-                data._legController->commands[foot].kpJoint = Mat3<float>::Identity() * 2.7;
-                data._legController->commands[foot].kdJoint = Mat3<float>::Identity() * 0.025;
+//                data._legController->commands[foot].kpJoint = Mat3<float>::Identity() * 2.7;
+                data._legController->commands[foot].kpJoint = Vec3<float>(0.54, 0.54, 0.54).asDiagonal();
+                data._legController->commands[foot].kdJoint = Vec3<float>(0.0001, 0.0001, 0.0001).asDiagonal();
                 // print all the commands
                 printf("swing Foot %d: pDes: %f %f %f, vDes: %f %f %f, qDes: %f %f %f\n", foot,
                        pDesLeg[0], pDesLeg[1], pDesLeg[2],
@@ -432,8 +433,8 @@ void ConvexMPCLocomotion::run(ControlFSMData<float> &data) {
 //                data._legController->commands[foot].forceFeedForward = f_ff[foot];
 //                data._legController->commands[foot].kdJoint = Mat3<float>::Identity() * 0.2;
                 data._legController->commands[foot].qDes = data._legController->inverseKinematics(pDesLeg, foot);
-                data._legController->commands[foot].kpJoint = Mat3<float>::Identity() * 2.7;
-                data._legController->commands[foot].kdJoint = Mat3<float>::Identity() * 0.025;
+                data._legController->commands[foot].kpJoint = Vec3<float>(2.1, 2.1, 3.2).asDiagonal();
+                data._legController->commands[foot].kdJoint = Vec3<float>(0.021, 0.021, 0.03).asDiagonal();
                 printf("stance Foot %d: pDes: %f %f %f, vDes: %f %f %f, qDes: %f %f %f\n", foot,
                        pDesLeg[0], pDesLeg[1], pDesLeg[2],
                        vDesLeg[0], vDesLeg[1], vDesLeg[2],

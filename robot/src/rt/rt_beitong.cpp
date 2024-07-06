@@ -5,7 +5,7 @@
 #include "rt/rt_beitong.h"
 
 int gampad_fd;
-const char* gamepad_path = "/dev/input/event21";
+const char* gamepad_path = "/dev/input/beitong";
 struct input_event beiTong_ev;
 
 bool init_gamepad() {

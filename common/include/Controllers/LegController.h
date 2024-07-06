@@ -110,7 +110,7 @@ public:
     bool isZeroCmd = false;
 
     std::ofstream outputFile;
-    std::string filePath = "/home/mebius/Leopard/output_inverseDyn_locomotion_kp2.7_kd0.025.txt";
+    std::string filePath = "/home/mebius/Leopard/locomotion_p0.txt";
 };
 
 template<typename T>

@@ -32,7 +32,6 @@ const float wimp_torque[3] = {6.f, 6.f, 6.f};  // TODO CHECK WITH BEN
 const float disabled_torque[3] = {0.f, 0.f, 0.f};
 
 // only used for actual robot
-//const float abad_side_sign[4] = {1.f, -1.f, -1.f, 1.f};
 //const float abad_side_sign[4] = {6.33f, -6.33f, -6.33f, 6.33f};
 const float abad_side_sign[4] = {6.33f, 6.33f, -6.33f, -6.33f};
 //const float hip_side_sign[4] = {1.f, -1.f, 1.f, -1.f};
@@ -43,8 +42,8 @@ const float knee_side_sign[4] = {9.846f, -9.846f, 9.846f, -9.846f};
 //const float abad_init[4] = {0.5, -0.5, 0.5, -0.5};
 //const float hip_init[4] = {1.4, 1.4, -1.6, -1.6};
 //const float knee_init[4] = {2.7, 2.7, -2.7, -2.7};
-const float abad_init[4] = {0.7, -0.7, 0.7, -0.7};
-const float hip_init[4] = {1.5, 1.5, -1.5, -1.5};
+const float abad_init[4] = {0.7, -0.7, 0.6, -0.6};
+const float hip_init[4] = {1.6, 1.6, -1.3, -1.3};
 const float knee_init[4] = {2.7, 2.7, -2.7, -2.7};
 
 // only used for actual robot

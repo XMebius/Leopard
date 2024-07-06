@@ -2,6 +2,8 @@
 #define FSM_STATE_STANDUP_H
 
 #include "FSM_State.h"
+#include <Controllers/JointSwingTrajectory.h>
+
 
 /**
  *
@@ -28,6 +30,8 @@ private:
     std::vector <Vec3<T>> _ini_foot_pos;
     std::vector <Vec3<T>> _ini_joint_pos;
     std::vector <Vec3<T>> _end_joint_pos;
+    JointSwingTrajectory<T> jointSwingTrajectories[4];
+
 };
 
 #endif  // FSM_STATE_STANDUP_H

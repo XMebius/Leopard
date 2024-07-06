@@ -81,9 +81,6 @@ void ControlFSM<T>::runFSM() {
     if (nextState == currentState && eStop) {
         switch (currentState->stateName) {
             case FSM_StateName::PASSIVE:
-                /*if (data._desiredStateCommand->beiTong->leftBumper) { // LB pressed
-//                    nextState = statesList.standUp;
-                } else*/
                 this->data._legController->isPassive = true;
                 if (data._desiredStateCommand->beiTong->b) {
                     nextState = statesList.passive;
@@ -99,12 +96,10 @@ void ControlFSM<T>::runFSM() {
                     nextState = statesList.passive;
                 } else if (data._desiredStateCommand->beiTong->x) {
                     nextState = statesList.locomotion;
+                } else if (data._desiredStateCommand->beiTong->y) {
+                    nextState = statesList.balanceStand;
                 }
                 break;
-                /*case FSM_StateName::SIT_DOWN:
-                    if (currentState->isBusy()) break;  // wait until the action is done
-                    nextState = statesList.passive;
-                    break;*/
             case FSM_StateName::RECOVERY_STAND:
                 this->data._legController->isRecoveryStand = true;
                 if (data._desiredStateCommand->beiTong->b) {

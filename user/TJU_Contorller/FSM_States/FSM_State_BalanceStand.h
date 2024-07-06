@@ -7,9 +7,7 @@
 #define LEOPARD_FSM_STATE_BALANCESTAND_H
 
 #include "FSM_State.h"
-
-template<typename T> class WBC_Ctrl;
-template<typename T> class LocomotionCtrlData;
+#include "Controllers/JointSwingTrajectory.h"
 
 template<typename T>
 class FSM_State_BalanceStand : public FSM_State<T>{
@@ -25,16 +23,25 @@ public:
 
 private:
 
-    void BalanceStandStep();
+    int _progress = 0;
+    Vec3<T> standJointPos[4];
 
-    WBC_Ctrl<T> * _wbc_ctrl;
-    LocomotionCtrlData<T> * _wbc_data;
+    JointSwingTrajectory<T> _jointSwingTrajectories[4];
+    int swingState[4] = {1, 0, 0, 1};
+    bool enterSwing[4] = {true, true, true, true};
+    bool enterStand[4] = {true, true, true, true};
 
-    T last_height_command = 0;
+    int count = 0;
 
-    Vec3<T> _ini_body_pos;
-    Vec3<T> _ini_body_ori_rpy;
-    T _body_weight;
+    Vec3<T> forward_stance_ini_angle;
+    Vec3<T> forward_stance_final_angle;
+    Vec3<T> forward_swing_mid;
+
+    Vec3<T> stance_ini;
+    Vec3<T> stance_fin;
+    Vec3<T> swing_ini;
+    Vec3<T> swing_fin;
+    Vec3<T> swing_mid;
 };
 
 
