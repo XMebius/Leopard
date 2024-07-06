@@ -85,49 +85,6 @@ void init_usb() {
     printf("[RT USB] open\n");
 }
 
-//void printCmd(usb_command_t *cmd, uint8_t leg) {
-//    if (leg == 2
-//        && std::abs(cmd->q_des_abad[leg]) > 0.0
-//        && std::abs(cmd->q_des_hip[leg]) > 0.0
-//        && std::abs(cmd->q_des_knee[leg]) > 0.0) {
-//
-//        printf("---------------------------------------------\n");
-//
-//        printf("original_abad--> q_des: %f, qd_des: %f, kp:%f, kd:%f, tau:%f\n",
-//               cmd->q_des_abad[leg], cmd->qd_des_abad[leg], cmd->kp_abad[leg], cmd->kd_abad[leg],
-//               cmd->tau_abad_ff[leg]);
-//
-//        printf("original_hip--> q_des: %f, qd_des: %f, kp:%f, kd:%f, tau:%f\n",
-//               cmd->q_des_hip[leg], cmd->qd_des_hip[leg], cmd->kp_hip[leg], cmd->kd_hip[leg], cmd->tau_hip_ff[leg]);
-//
-//        printf("original_knee--> q_des: %f, qd_des: %f, kp:%f, kd:%f, tau:%f\n",
-//               cmd->q_des_knee[leg], cmd->qd_des_knee[leg], cmd->kp_knee[leg], cmd->kd_knee[leg],
-//               cmd->tau_knee_ff[leg]);
-//
-//        printf("abad--> q_des: %f, qd_des: %f, kp:%f, kd:%f, tau:%f\n",
-//               (cmd->q_des_abad[leg] * abad_side_sign[leg]) + abad_offset[leg],
-//               cmd->qd_des_abad[leg] * abad_side_sign[leg],
-//               cmd->kp_abad[leg],
-//               cmd->kd_abad[leg],
-//               cmd->tau_abad_ff[leg] * abad_side_sign[leg]);
-//
-//        printf("hip--> q_des: %f, qd_des: %f, kp:%f, kd:%f, tau:%f\n",
-//               (cmd->q_des_hip[leg] * hip_side_sign[leg]) + hip_offset[leg],
-//               cmd->qd_des_hip[leg] * hip_side_sign[leg],
-//               cmd->kp_hip[leg],
-//               cmd->kd_hip[leg],
-//               cmd->tau_hip_ff[leg] * hip_side_sign[leg]);
-//
-//        printf("knee--> q_des: %f, qd_des: %f, kp:%f, kd:%f, tau:%f\n",
-//               (cmd->q_des_knee[leg] * knee_side_sign[leg]) + knee_offset[leg],
-//               cmd->qd_des_knee[leg] * knee_side_sign[leg],
-//               cmd->kp_knee[leg],
-//               cmd->kd_knee[leg],
-//               cmd->tau_knee_ff[leg] * knee_side_sign[leg]);
-//    }
-//
-//}
-
 void usb_to_spine(usb_command_t *cmd, std::vector<MotorCmd> &SPine_leg_cmd, uint8_t leg) {
 
     assert(leg >= 0 && leg <= 3);
@@ -139,12 +96,6 @@ void usb_to_spine(usb_command_t *cmd, std::vector<MotorCmd> &SPine_leg_cmd, uint
     for (auto &i: SPine_leg_cmd) {
         i.mode = 1;// foc control
     }
-
-//    printf("leg: %d q_des_abad: %f, q_des_hip: %f, q_des_knee: %f\n", leg, cmd->q_des_abad[leg], cmd->q_des_hip[leg], cmd->q_des_knee[leg]);
-//    printf("leg: %d qd_des_abad: %f, qd_des_hip: %f, qd_des_knee: %f\n", leg, cmd->qd_des_abad[leg], cmd->qd_des_hip[leg], cmd->qd_des_knee[leg]);
-//    printf("leg: %d kp_abad: %f, kp_hip: %f, kp_knee: %f\n", leg, cmd->kp_abad[leg], cmd->kp_hip[leg], cmd->kp_knee[leg]);
-//    printf("leg: %d kd_abad: %f, kd_hip: %f, kd_knee: %f\n", leg, cmd->kd_abad[leg], cmd->kd_hip[leg], cmd->kd_knee[leg]);
-//    printf("leg: %d tau_abad_ff: %f, tau_hip_ff: %f, tau_knee_ff: %f\n", leg, cmd->tau_abad_ff[leg], cmd->tau_hip_ff[leg], cmd->tau_knee_ff[leg]);
 
 #ifndef MOTOR_CHEATER
 

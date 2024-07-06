@@ -28,20 +28,6 @@ private:
 
     JointSwingTrajectory<T> _jointSwingTrajectories[4];
     int swingState[4] = {1, 0, 0, 1};
-    bool enterSwing[4] = {true, true, true, true};
-    bool enterStand[4] = {true, true, true, true};
-
-    int count = 0;
-
-    Vec3<T> forward_stance_ini_angle;
-    Vec3<T> forward_stance_final_angle;
-    Vec3<T> forward_swing_mid;
-
-    Vec3<T> stance_ini;
-    Vec3<T> stance_fin;
-    Vec3<T> swing_ini;
-    Vec3<T> swing_fin;
-    Vec3<T> swing_mid;
 };
 
 
