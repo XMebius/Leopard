@@ -7,11 +7,15 @@
 
 template<typename T>
 Vec3<T> JointSwingTrajectory<T>::inverseKinematics(Vec3<T> pDes, int leg) {
-    T x = std::abs(pDes(0));
-    T y = std::abs(pDes(1));
-    T z = std::abs(pDes(2));
+//    T x = std::abs(pDes(0));
+//    T y = std::abs(pDes(1));
+//    T z = std::abs(pDes(2));
+    float sideSign[4] = {1, -1, 1, -1};
+    float x = pDes(0);
+    float y = pDes(1) * sideSign[leg];
+    float z = pDes(2);
 
-    T h = 0.062;
+    T h = 0.072;
     T hu = 0.209;
     T hl = 0.195;
 
@@ -65,6 +69,13 @@ void JointSwingTrajectory<T>::computeSwingTrajectoryBezier(T phase, T swingTime)
         _qd = Interpolate::cubicBezierFirstDerivative<Vec3<T>>(_qm, _qf, phase * 2 - 1) * 2 / swingTime;
         _qdd = Interpolate::cubicBezierSecondDerivative<Vec3<T>>(_qm, _qf, phase * 2 - 1) * 4 / (swingTime * swingTime);
     }
+}
+
+template<typename T>
+void JointSwingTrajectory<T>::computeSwingTrajectoryBezierWithoutMid(T phase, T swingTime) {
+    _q = Interpolate::cubicBezier<Vec3<T>>(_q0, _qf, phase);
+    _qd = Interpolate::cubicBezierFirstDerivative<Vec3<T>>(_q0, _qf, phase) * 2 / swingTime;
+    _qdd = Interpolate::cubicBezierSecondDerivative<Vec3<T>>(_q0, _qf, phase) * 4 / (swingTime * swingTime);
 }
 
 template

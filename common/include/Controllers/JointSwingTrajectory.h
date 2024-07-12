@@ -27,6 +27,8 @@ public:
 
     void computeSwingTrajectoryBezier(T phase, T swingTime);
 
+    void computeSwingTrajectoryBezierWithoutMid(T phase, T swingTime);
+
     void setInitialJointPosition(Vec3<T> p0, int leg) {
         _p0 = p0;
         _q0 = inverseKinematics(p0, leg);
@@ -35,6 +37,10 @@ public:
     void setFinalJointPosition(Vec3<T> pf, int leg) {
         _pf = pf;
         _qf = inverseKinematics(pf, leg);
+    }
+
+    void setMiddleJointPosition(Vec3<T> pm, int leg) {
+        _qm = inverseKinematics(pm, leg);
     }
 
     void setHeight(T h, int leg) {

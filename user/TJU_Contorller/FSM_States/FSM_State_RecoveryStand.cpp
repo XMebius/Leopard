@@ -20,10 +20,10 @@ FSM_State_RecoveryStand<T>::FSM_State_RecoveryStand(ControlFSMData<T> *_controlF
     fold_jpos[3] << 0.0f, -1.4f, 2.7f;
 
     // Stand Up
-    stand_jpos[0] << 0.f, -.7f, 1.5f;
-    stand_jpos[1] << 0.f, -.7f, 1.5f;
-    stand_jpos[2] << 0.f, -.65f, 1.45f;
-    stand_jpos[3] << 0.f, -.65f, 1.45f;
+    stand_jpos[0] << 0.f, -.65f, 1.35f;
+    stand_jpos[1] << 0.f, -.65f, 1.35f;
+    stand_jpos[2] << 0.f, -.60f, 1.30f;
+    stand_jpos[3] << 0.f, -.60f, 1.30f;
 
     // Rolling
     rolling_jpos[0] << 1.5f, -1.6f, 2.77f;

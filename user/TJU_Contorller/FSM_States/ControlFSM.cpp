@@ -112,6 +112,7 @@ void ControlFSM<T>::runFSM() {
                 break;
             case FSM_StateName::BALANCE_STAND:
                 this->data._legController->isRecoveryStand = false;
+                this->data._legController->isLocomotion = true;
                 if (data._desiredStateCommand->beiTong->b) {
                     nextState = statesList.passive;
                 } else if (data._desiredStateCommand->beiTong->x) {
