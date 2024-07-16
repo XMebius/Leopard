@@ -47,7 +47,7 @@ ControlFSM<T>::ControlFSM(Quadruped<T> *_quadruped,
 //    statesList.sitDown = new FSM_State_SitDown<T>(&data);
     statesList.standUp = new FSM_State_StandUp<T>(&data);
     statesList.sitDown = new FSM_State_SitDown<T>(&data);
-    statesList.locomotion = new FSM_State_Locomotion<T>(&data);
+//    statesList.locomotion = new FSM_State_Locomotion<T>(&data);
     statesList.recoveryStand = new FSM_State_RecoveryStand<T>(&data);
     statesList.balanceStand = new FSM_State_BalanceStand<T>(&data);
 
@@ -94,8 +94,9 @@ void ControlFSM<T>::runFSM() {
                 if (currentState->isBusy()) break;
                 if (data._desiredStateCommand->beiTong->b) {
                     nextState = statesList.passive;
-                } else if (data._desiredStateCommand->beiTong->x) {
-                    nextState = statesList.locomotion;
+                } else if (data._desiredStateCommand->beiTong->rightTriggerButton) {
+                    // sit down
+                    nextState = statesList.sitDown;
                 } else if (data._desiredStateCommand->beiTong->y) {
                     nextState = statesList.balanceStand;
                 }
@@ -106,8 +107,9 @@ void ControlFSM<T>::runFSM() {
                     nextState = statesList.passive;
                 } else if (data._desiredStateCommand->beiTong->y) {
                     nextState = statesList.balanceStand;
-                } else if (data._desiredStateCommand->beiTong->x) {
-                    nextState = statesList.locomotion;
+                } else if (data._desiredStateCommand->beiTong->rightTriggerButton) {
+                    // sit down
+                    nextState = statesList.sitDown;
                 }
                 break;
             case FSM_StateName::BALANCE_STAND:
@@ -115,17 +117,26 @@ void ControlFSM<T>::runFSM() {
                 this->data._legController->isLocomotion = true;
                 if (data._desiredStateCommand->beiTong->b) {
                     nextState = statesList.passive;
-                } else if (data._desiredStateCommand->beiTong->x) {
-                    nextState = statesList.locomotion;
+                } else if (data._desiredStateCommand->beiTong->rightTriggerButton) {
+                    // sit down
+                    nextState = statesList.sitDown;
                 }
                 break;
-            case FSM_StateName::LOCOMOTION:
-                this->data._legController->isLocomotion = true;
-                if (currentState->isBusy()) break;
-                if (data._desiredStateCommand->beiTong->b) { // LB pressed
+//            case FSM_StateName::LOCOMOTION:
+//                this->data._legController->isLocomotion = true;
+//                if (currentState->isBusy()) break;
+//                if (data._desiredStateCommand->beiTong->b) { // LB pressed
+//                    nextState = statesList.passive;
+//                } else if (data._desiredStateCommand->beiTong->rightTriggerButton) {
+//                    nextState = statesList.standUp;
+//                }
+//                break;
+            case FSM_StateName::SIT_DOWN:
+                if(currentState->isBusy()) break;
+                if(data._desiredStateCommand->beiTong->b){
                     nextState = statesList.passive;
-                } else if (data._desiredStateCommand->beiTong->rightTriggerButton) {
-                    nextState = statesList.standUp;
+                } else if (data._desiredStateCommand->beiTong->rightBumper) {
+                    nextState = statesList.recoveryStand;
                 }
                 break;
             default:

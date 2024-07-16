@@ -32,8 +32,8 @@ void FSM_State_SitDown<T>::onEnter() {
 //        _ini_joint_pos[leg][2] = this->_delta_knee;
 
         _end_joint_pos[leg][0] = 0.f;    // abad
-        _end_joint_pos[leg][1] = 0.f;    // hip
-        _end_joint_pos[leg][2] = 0.f;    // knee
+        _end_joint_pos[leg][1] = -1.4f;    // hip
+        _end_joint_pos[leg][2] = 2.7f;    // knee
     }
 }
 
@@ -50,7 +50,7 @@ void FSM_State_SitDown<T>::run() {
     if (t > 1.) { t = 1.; }
 
     Vec3<T> kp(1.8, 2.0, 2.7);
-    Vec3<T> kd(0.02, 0.020, 0.021);
+    Vec3<T> kd(0.02, 0.020, 0.025);
 
     for (size_t leg(0); leg < 4; ++leg) {
         this->_data->_legController->commands[leg].kpJoint = kp.asDiagonal();

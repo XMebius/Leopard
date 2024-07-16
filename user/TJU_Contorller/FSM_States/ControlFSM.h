@@ -28,7 +28,7 @@ struct FSM_StatesList {
     FSM_State_Passive<T> *passive;
     FSM_State_StandUp<T> *standUp;
     FSM_State_SitDown<T> *sitDown;
-    FSM_State_Locomotion<T> *locomotion;
+//    FSM_State_Locomotion<T> *locomotion;
     FSM_State_RecoveryStand<T> *recoveryStand;
     FSM_State_BalanceStand<T> *balanceStand;
 //  FSM_State_Locomotion<T>* locomotion;

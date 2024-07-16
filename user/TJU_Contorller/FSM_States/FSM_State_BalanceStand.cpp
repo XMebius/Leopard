@@ -15,18 +15,23 @@ FSM_State_BalanceStand<T>::FSM_State_BalanceStand(ControlFSMData<T> *_controlFSM
 template<typename T>
 void FSM_State_BalanceStand<T>::onEnter() {
     _progress = 0;
+    freeze = false;
+    mode = 0;
 
     // 规划四条固定的曲线
     for (int leg = 0; leg < 4; leg++) {
+        qStand[leg] = this->_data->_legController->datas[leg].q;
+
         pStand[leg] = this->_data->_legController->datas[leg].p;
         pStand[leg][1] = this->_data->_quadruped->_abadLinkLength * this->_data->_quadruped->getSideSign(leg);
-
+        pStandForward[leg] = pStand[leg];
         pStandBack[leg] = pStand[leg];
         pForward[leg] = pStand[leg];
         pBackward[leg] = pStand[leg];
         pSwingAir[leg] = pStand[leg];
 
-        pStandBack[leg][0] += 0.005;
+        pStandForward[leg][0] += 0.02;
+        pStandBack[leg][0] -= 0.02;
         pForward[leg][0] += 0.04;
         pBackward[leg][0] -= 0.04;
         pSwingAir[leg][2] += 0.08;
@@ -38,97 +43,231 @@ void FSM_State_BalanceStand<T>::onEnter() {
         printf("leg: %d pBackward: %f %f %f\n", leg, pBackward[leg][0], pBackward[leg][1], pBackward[leg][2]);
         printf("leg: %d pSwingAir: %f %f %f\n", leg, pSwingAir[leg][0], pSwingAir[leg][1], pSwingAir[leg][2]);
 
-        auto qStand = JointSwingTrajectory<T>::inverseKinematics(pStand[leg], leg);
+        auto qStand0 = JointSwingTrajectory<T>::inverseKinematics(pStand[leg], leg);
         auto qStandBack = JointSwingTrajectory<T>::inverseKinematics(pStandBack[leg], leg);
         auto qForward = JointSwingTrajectory<T>::inverseKinematics(pForward[leg], leg);
         auto qBackward = JointSwingTrajectory<T>::inverseKinematics(pBackward[leg], leg);
         auto qSwingAir = JointSwingTrajectory<T>::inverseKinematics(pSwingAir[leg], leg);
 
         // print
-        printf("leg: %d qStand: %f %f %f\n", leg, qStand[0], qStand[1], qStand[2]);
+        printf("leg: %d qStand: %f %f %f\n", leg, qStand0[0], qStand0[1], qStand0[2]);
         printf("leg: %d qStandBack: %f %f %f\n", leg, qStandBack[0], qStandBack[1], qStandBack[2]);
         printf("leg: %d qForward: %f %f %f\n", leg, qForward[0], qForward[1], qForward[2]);
         printf("leg: %d qBackward: %f %f %f\n", leg, qBackward[0], qBackward[1], qBackward[2]);
         printf("leg: %d qSwingAir: %f %f %f\n", leg, qSwingAir[0], qSwingAir[1], qSwingAir[2]);
 
-        _firstStepSwing[leg].setInitialJointPosition(pStand[leg], leg);
-        _firstStepSwing[leg].setMiddleJointPosition(pSwingAir[leg], leg);
-        _firstStepSwing[leg].setFinalJointPosition(pForward[leg], leg);
+        /*************** stand mode ***************/
+        _firstStandSwing[leg].setInitialJointPosition(pStand[leg], leg);
+        _firstStandSwing[leg].setMiddleJointPosition(pSwingAir[leg], leg);
+        _firstStandSwing[leg].setFinalJointPosition(pStandForward[leg], leg);
 
-        _firstStepStance[leg].setInitialJointPosition(pStand[leg], leg);
-        _firstStepStance[leg].setFinalJointPosition(pBackward[leg], leg);
+        _firstStandStance[leg].setInitialJointPosition(pStand[leg], leg);
+        _firstStandStance[leg].setFinalJointPosition(pStandBack[leg], leg);
 
-        _SwingTraj[leg].setInitialJointPosition(pBackward[leg], leg);
-        _SwingTraj[leg].setMiddleJointPosition(pSwingAir[leg], leg);
-        _SwingTraj[leg].setFinalJointPosition(pForward[leg], leg);
+        _StandSwing[leg].setInitialJointPosition(pStandBack[leg], leg);
+        _StandSwing[leg].setMiddleJointPosition(pSwingAir[leg], leg);
+        _StandSwing[leg].setFinalJointPosition(pStandForward[leg], leg);
 
-        _StanceTraj[leg].setInitialJointPosition(pForward[leg], leg);
-        _StanceTraj[leg].setMiddleJointPosition(pStand[leg], leg);
-        _StanceTraj[leg].setFinalJointPosition(pBackward[leg], leg);
+        _StandStance[leg].setInitialJointPosition(pStandForward[leg], leg);
+        _StandStance[leg].setMiddleJointPosition(pStand[leg], leg);
+        _StandStance[leg].setFinalJointPosition(pStandBack[leg], leg);
+
+        /*************** forward mode ***************/
+        _firstForwardSwing[leg].setInitialJointPosition(pStand[leg], leg);
+        _firstForwardSwing[leg].setMiddleJointPosition(pSwingAir[leg], leg);
+        _firstForwardSwing[leg].setFinalJointPosition(pForward[leg], leg);
+
+        _firstForwardStance[leg].setInitialJointPosition(pStand[leg], leg);
+        _firstForwardStance[leg].setFinalJointPosition(pBackward[leg], leg);
+
+        _forwardSwingTraj[leg].setInitialJointPosition(pBackward[leg], leg);
+        _forwardSwingTraj[leg].setMiddleJointPosition(pSwingAir[leg], leg);
+        _forwardSwingTraj[leg].setFinalJointPosition(pForward[leg], leg);
+
+        _forwardStanceTraj[leg].setInitialJointPosition(pForward[leg], leg);
+        _forwardStanceTraj[leg].setMiddleJointPosition(pStand[leg], leg);
+        _forwardStanceTraj[leg].setFinalJointPosition(pBackward[leg], leg);
+
+        /*************** backward mode ***************/
+        _firstBackwardSwing[leg].setInitialJointPosition(pStand[leg], leg);
+        _firstBackwardSwing[leg].setMiddleJointPosition(pSwingAir[leg], leg);
+        _firstBackwardSwing[leg].setFinalJointPosition(pBackward[leg], leg);
+
+        _firstBackwardStance[leg].setInitialJointPosition(pStand[leg], leg);
+        _firstBackwardStance[leg].setFinalJointPosition(pForward[leg], leg);
+
+        _backwardSwingTraj[leg].setInitialJointPosition(pForward[leg], leg);
+        _backwardSwingTraj[leg].setMiddleJointPosition(pSwingAir[leg], leg);
+        _backwardSwingTraj[leg].setFinalJointPosition(pBackward[leg], leg);
+
+        _backwardStanceTraj[leg].setInitialJointPosition(pBackward[leg], leg);
+        _backwardStanceTraj[leg].setMiddleJointPosition(pStand[leg], leg);
+        _backwardStanceTraj[leg].setFinalJointPosition(pForward[leg], leg);
     }
-
-//    for (int leg(0); leg < 4; leg++) {
-//        _jointSwingTrajectories[leg].setInitialJointPosition(this->_data->_legController->datas[leg].p, leg);
-//        _jointSwingTrajectories[leg].setFinalJointPosition(this->_data->_legController->datas[leg].p, leg);
-//        _jointSwingTrajectories[leg].setHeight(-0.19, leg);
-//        standJointPos[leg] = this->_data->_legController->datas[leg].q;
-//    }
 }
 
 template<typename T>
-void FSM_State_BalanceStand<T>::run() {
-    float phase = 5 * _progress * this->_data->controlParameters->controller_dt;
+void FSM_State_BalanceStand<T>::setupCommand() {
+    // 原地不动
+    auto cmd = this->_data->_desiredStateCommand;
 
-    for (int leg = 0; leg < 4; leg++) {
-        if (swingState[leg]) {
-            if (leg == 1 || leg == 2){
-                firstMove[leg] = false;
-            }
-            if (firstMove[leg]) {
-                _firstStepSwing[leg].computeSwingTrajectoryBezier(phase, 0.3f);
-                printf("firstMove[%d] phase: %f q0: %f q1: %f q2: %f\n", leg, phase, _firstStepSwing[leg].getJointPosition()[0],
-                       _firstStepSwing[leg].getJointPosition()[1], _firstStepSwing[leg].getJointPosition()[2]);
-                this->_data->_legController->commands[leg].qDes = _firstStepSwing[leg].getJointPosition();
-//                this->_data->_legController->commands[leg].qDes[0] = 0.;
-                this->_data->_legController->commands[leg].qdDes = _firstStepSwing[leg].getJointVelocity();
-                this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.2, 1.2, 1.2).asDiagonal();
-                this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.010, 0.010, 0.010).asDiagonal();
+    if (cmd->leftAnalogStick[1] > 0.05f) {    // move forward
+        mode = mode::FORWARD;
+        printf("move forward\n");
+    } else if (cmd->leftAnalogStick[1] < -0.05f) {
+        mode = mode::BACKWARD;
+    } else if (cmd->rightAnalogStick[0] > 0.05f) {
+        mode = mode::LEFT;
+    } else if (cmd->rightAnalogStick[0] < -0.05f) {
+        mode = mode::RIGHT;
+    } else {
+        mode = mode::STAND;
+    }
+}
+
+
+template<typename T>
+void FSM_State_BalanceStand<T>::run() {
+    setupCommand();
+    float phase = 5 * _progress * this->_data->controlParameters->controller_dt;
+    float swingTime = 2.f;
+    if (freeze) {
+        for (int leg = 0; leg < 4; leg++) {
+            this->_data->_legController->commands[leg].qDes = qStand[leg];
+            this->_data->_legController->commands[leg].qdDes = Vec3<T>(0., 0., 0.);
+            this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.8, 1.8, 1.8).asDiagonal();
+            this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.016, 0.016, 0.016).asDiagonal();
+        }
+    } else {
+        for (int leg = 0; leg < 4; leg++) {
+            if (swingState[leg]) {
+                if (leg == 1 || leg == 2) {
+                    firstMove[leg] = false;
+                }
+                if (firstMove[leg]) {
+//                _firstStepSwing[leg].computeSwingTrajectoryBezier(phase, swingTime);
+//                SwingPtr[leg] = &_firstStepSwing[leg];
+                    switch (mode) {
+                        case mode::STAND:
+//                            printf("first swing leg:%d phase:%f\n", leg, phase);
+                            _StandSwing[leg].computeSwingTrajectoryBezier(phase, swingTime);
+                            SwingPtr[leg] = &_StandSwing[leg];
+                            break;
+                        case mode::FORWARD:
+                            _firstForwardSwing[leg].computeSwingTrajectoryBezier(phase, swingTime);
+                            SwingPtr[leg] = &_firstForwardSwing[leg];
+                            break;
+                        case mode::BACKWARD:
+                            _firstBackwardSwing[leg].computeSwingTrajectoryBezier(phase, swingTime);
+                            SwingPtr[leg] = &_firstBackwardSwing[leg];
+                            break;
+                    }
+                } else {
+                    switch (mode) {
+                        case mode::STAND:
+                            _StandSwing[leg].computeSwingTrajectoryBezier(phase, swingTime);
+                            SwingPtr[leg] = &_StandSwing[leg];
+                            break;
+                        case mode::FORWARD:
+                            _forwardSwingTraj[leg].computeSwingTrajectoryBezier(phase, swingTime);
+                            SwingPtr[leg] = &_forwardSwingTraj[leg];
+                            break;
+                        case mode::BACKWARD:
+                            _backwardSwingTraj[leg].computeSwingTrajectoryBezier(phase, swingTime);
+                            SwingPtr[leg] = &_backwardSwingTraj[leg];
+                            break;
+                    }
+                }
+
+                // print JointPosition
+//                printf("swing leg: %d, qDes: %f, %f, %f\n", leg, SwingPtr[leg]->getJointPosition()[0],
+//                       SwingPtr[leg]->getJointPosition()[1], SwingPtr[leg]->getJointPosition()[2]);
+                this->_data->_legController->commands[leg].qDes = SwingPtr[leg]->getJointPosition();
+                this->_data->_legController->commands[leg].qDes[0] = 0.f;
+                this->_data->_legController->commands[leg].qdDes = SwingPtr[leg]->getJointVelocity();
+                this->_data->_legController->commands[leg].qdDes[0] = 0.f;
+                if(leg == 0){
+                    this->_data->_legController->commands[leg].kpJoint = Vec3<T>(0.8, 0.8, 0.8).asDiagonal();
+                    this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.006, 0.006, 0.006).asDiagonal();
+                } else if(leg == 1){
+                    this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.6, 1.6, 1.6).asDiagonal();
+                    this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.014, 0.014, 0.014).asDiagonal();
+                } else if(leg == 2){
+                    this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.4, 1.4, 1.4).asDiagonal();
+                    this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.012, 0.012, 0.012).asDiagonal();
+                } else if(leg == 3){
+                    this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.2, 1.2, 1.2).asDiagonal();
+                    this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.010, 0.010, 0.010).asDiagonal();
+                }
+
             } else {
-                _SwingTraj[leg].computeSwingTrajectoryBezier(phase, 0.3f);
-                this->_data->_legController->commands[leg].qDes = _SwingTraj[leg].getJointPosition();
-//                this->_data->_legController->commands[leg].qDes[0] = 0.;
-                this->_data->_legController->commands[leg].qdDes = _SwingTraj[leg].getJointVelocity();
-                this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.2, 1.2, 1.2).asDiagonal();
-                this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.010, 0.010, 0.010).asDiagonal();
-            }
-        } else{
-            if(leg == 0 || leg == 3){
-                firstMove[leg] = false;
-            }
-            if (firstMove[leg]) {
-                _firstStepStance[leg].computeSwingTrajectoryBezierWithoutMid(phase, 0.3f);
-                printf("firstStance[%d] phase: %f q0: %f q1: %f q2: %f\n", leg, phase, _firstStepStance[leg].getJointPosition()[0],
-                       _firstStepStance[leg].getJointPosition()[1], _firstStepStance[leg].getJointPosition()[2]);
-                this->_data->_legController->commands[leg].qDes = _firstStepStance[leg].getJointPosition();
-//                this->_data->_legController->commands[leg].qDes[0] = 0.;
-                this->_data->_legController->commands[leg].qdDes = _firstStepStance[leg].getJointVelocity();
-                this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.8, 1.8, 1.8).asDiagonal();
-                this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.016, 0.016, 0.016).asDiagonal();
-            } else {
-                _StanceTraj[leg].computeSwingTrajectoryBezier(phase, 0.3f);
-                this->_data->_legController->commands[leg].qDes = _StanceTraj[leg].getJointPosition();
-//                this->_data->_legController->commands[leg].qDes[0] = 0.;
-                this->_data->_legController->commands[leg].qdDes = _StanceTraj[leg].getJointVelocity();
-                this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.8, 1.8, 1.8).asDiagonal();
-                this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.016, 0.016, 0.016).asDiagonal();
+                if (leg == 0 || leg == 3) {
+                    firstMove[leg] = false;
+                }
+                if (firstMove[leg]) {
+                    switch (mode) {
+                        case mode::STAND:
+                            _StandStance[leg].computeSwingTrajectoryBezierWithoutMid(phase, swingTime);
+                            StancePtr[leg] = &_StandStance[leg];
+                            break;
+                        case mode::FORWARD:
+                            _firstForwardStance[leg].computeSwingTrajectoryBezier(phase, swingTime);
+                            StancePtr[leg] = &_firstForwardStance[leg];
+                            break;
+                        case mode::BACKWARD:
+                            _firstBackwardStance[leg].computeSwingTrajectoryBezier(phase, swingTime);
+                            StancePtr[leg] = &_firstBackwardStance[leg];
+                            break;
+                    }
+                } else {
+                    switch (mode) {
+                        case mode::STAND:
+                            _StandStance[leg].computeSwingTrajectoryBezierWithoutMid(phase, swingTime);
+                            StancePtr[leg] = &_StandStance[leg];
+                            break;
+                        case mode::FORWARD:
+                            _forwardStanceTraj[leg].computeSwingTrajectoryBezier(phase, swingTime);
+                            StancePtr[leg] = &_forwardStanceTraj[leg];
+                            break;
+                        case mode::BACKWARD:
+                            _backwardStanceTraj[leg].computeSwingTrajectoryBezier(phase, swingTime);
+                            StancePtr[leg] = &_backwardStanceTraj[leg];
+                            break;
+                    }
+                }
+                this->_data->_legController->commands[leg].qDes = StancePtr[leg]->getJointPosition();
+                this->_data->_legController->commands[leg].qDes[0] = 0.f;
+                this->_data->_legController->commands[leg].qdDes = StancePtr[leg]->getJointVelocity();
+                this->_data->_legController->commands[leg].qdDes[0] = 0.f;
+
+                if(leg == 0){
+                    this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.6, 1.6, 1.6).asDiagonal();
+                    this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.014, 0.014, 0.014).asDiagonal();
+                } else if(leg == 1){
+                    this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.6, 1.6, 1.6).asDiagonal();
+                    this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.014, 0.014, 0.014).asDiagonal();
+                } else if(leg == 2){
+                    this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.6, 1.6, 1.6).asDiagonal();
+                    this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.014, 0.014, 0.014).asDiagonal();
+                } else if(leg == 3){
+                    this->_data->_legController->commands[leg].kpJoint = Vec3<T>(1.6, 1.6, 1.6).asDiagonal();
+                    this->_data->_legController->commands[leg].kdJoint = Vec3<T>(0.014, 0.014, 0.014).asDiagonal();
+                }
+
+
             }
         }
     }
 
     if (_progress >= 100) {
         _progress = 0;
-        for (int i = 0; i < 4; i++)
-            swingState[i] = !swingState[i];
+        if (this->_data->_desiredStateCommand->beiTong->x) {
+            printf("freeze\n");
+            freeze = true;
+        } else {
+            for (int i = 0; i < 4; i++)
+                swingState[i] = !swingState[i];
+        }
     } else {
         _progress++;
     }
